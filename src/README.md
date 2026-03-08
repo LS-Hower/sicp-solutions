@@ -7,6 +7,5 @@
 # 生成
 
 ```Bash
-scribble --dest ../docs ++style manual-racket.css ++style manual-style.css index.scrbl
-scribble --dest ../docs ++style manual-racket.css ++style manual-style.css chapter-1.scrbl
+scribble --dest ../docs ++style manual-racket.css ++style manual-style.css index.scrbl chapter-1.scrbl
 ```
