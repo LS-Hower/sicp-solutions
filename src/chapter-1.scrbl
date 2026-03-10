@@ -124,7 +124,7 @@
 
 我们使用的 Scheme 解释器是采用应用序求值的，所以在对 @racket[(new-if a b c)] 求值时，解释器会先对 @racket[new-if] 、 @racket[a] 、 @racket[b] 和 @racket[c] 这四个表达式全都求值，然后再去执行 @racket[new-if] 的过程体。
 
-而 @tt{if} 作为特殊形式，是有着它独特的求值规则的：先对谓词 @italic{<predicate>} 求值，再去选择性地求值 @italic{<consequent>} 和 @italic{<alternative>} 其中的一个。
+而 @tt{if} 作为特殊形式，是有着它独特的求值规则的：对 @racket[(if a b c)] 求值时，解释器会先对 @racket[a] 求值，然后根据结果，选择对 @racket[b] 和 @racket[c] 中的其中一个求值。
 
 在 @racket[sqrt-iter] 里，原本的 @tt{if} 中， @italic{<alternative>} 是一个（尾）递归调用。在谓词 @italic{<predicate>} 为真时，根据上面的规则，这个递归调用便不会被求值，从而使程序能够停止。使用 @racket[new-if] 替换 @tt{if} 之后，这个递归调用无论如何都会被求值，从而造成无限递归。此外，由于 @racket[new-if] 是一个普通的过程，所以这个递归调用不再是尾递归了，计算过程不能被强制优化成常数空间的迭代计算过程，因此解释器会消耗越来越多的内存空间，最终导致错误。
 
@@ -132,28 +132,25 @@
 
 @section{练习 1.7}
 
-如下：
+为了获取两次猜测之间的“改变值”，对于一些过程我们要新增一个参数 @tt{previous-guess} ，记录上一次的猜测值。至于初始时的“上次猜测值”，这里设置成 @racket[2.0] 。设置成其他值也可以，只要和 @racket[1.0] 相差足够大，从而能够进入递归（循环）。
+
+在 @racket[ratio-sqrt-iter] 中，进行（尾）递归调用时， @racket[guess] 成为下一轮的 @racket[previous-guess] ，而下一轮的 @racket[guess] 则由 @racket[improve] 过程计算得出。
 
 @margin-note{下一节（1.1.8）指出，定义在全局的过程会占用名字，这个问题其实这里已经能感受到了：为了避免和正文里的过程重名，我们添加了一些“@tt{ratio-}”前缀。}
 
 @ss-interaction[
-(code:line (code:comment "为了获取两次猜测之间的“改变值”，我们要新增一个参数 previous-guess，记录上一次的猜测值。"))
-
 (define (ratio-good-enough? previous-guess guess)
   (< (abs (/ (- guess previous-guess) guess)) 0.001))
-(code:line
+
 (define (ratio-sqrt-iter previous-guess guess x)
   (if (ratio-good-enough? previous-guess guess)
       guess
       (ratio-sqrt-iter guess
                        (improve guess x)
                        x)))
-(code:comment "可以看到，在进行递归调用时，guess 成为下一轮的 previous-guess，而下一轮的 guess 则由 improve 计算得出。"))
 
-(code:line
 (define (ratio-sqrt x)
   (ratio-sqrt-iter 2.0 1.0 x))
-(code:comment "一开始把虚假的“上一次的猜测值”设成 2.0，这是为了能和 1.0 相比足够不一样。"))
 
 (ratio-sqrt 9)
 (ratio-sqrt (+ 100 37))
@@ -165,7 +162,7 @@
 
 @section{练习 1.8}
 
-和正文中几乎一样，只有公式不同。
+和正文中几乎一样，只有公式不同。反映在代码中，就是 @racket[cbrt-improve] 的过程体。
 
 @ss-interaction[
 
@@ -181,12 +178,10 @@
       (cbrt-iter (cbrt-improve guess x)
                  x)))
 
-(code:line
 (define (cbrt-improve guess x)
   (/ (+ (/ x (square guess))
         (* 2 guess))
      3))
-(code:comment "这里是不同的部分"))
 
 (define (cbrt-good-enough? guess x)
   (< (abs (- (cube guess) x)) 0.001))
