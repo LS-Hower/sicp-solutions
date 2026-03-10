@@ -7,7 +7,7 @@
 @; ----------------------------------------------------------------------
 
 @(require scribble/manual
-          "mreval.rkt")
+          "interaction.ss")
 
 @; ----------------------------------------------------------------------
 
@@ -19,7 +19,7 @@
 
 @section{练习 1.1}
 
-按顺序执行一些 Scheme 代码。结果如下：
+只是按顺序执行一些 Scheme 代码。结果如下：
 
 @ss-interaction[
 10
@@ -69,11 +69,17 @@
 
 如下：
 
+@margin-note{在 Scheme 中，分号表示代码中的注释，从分号开始到该行行尾的内容都会被解释器忽略。}
+
+@margin-note{关于代码中的方括号，见主页面里的说明。}
+
 @ss-interaction[
+(code:line
 (define (sum-of-bigger-two a b c)
-  (cond [(and (< a b) (< a c)) (+ b c)]  ; a 是最小值的情况
-        [(and (< b a) (< b c)) (+ a c)]  ; b 是最小值的情况
-        [else (+ a b)]))                 ; c 是最小值的情况
+  (cond [(and (< a b) (< a c)) (+ b c)]
+        [(and (< b a) (< b c)) (+ a c)]
+        [else (+ a b)]))
+(code:comment "三个情况分别对应 a、b 和 c 是最小值时的情况"))
 
 (sum-of-bigger-two (- 5) (- 2) 4)
 (sum-of-bigger-two (- 5) 4 (- 2))
@@ -96,6 +102,8 @@
 
 这确实与书中之前见过的所有代码都不同。之前的代码中，要被调用的过程，即第一个子表达式，都被表示成一个普通的名字，如 @racket[square] 或 @racket[+] 。但在这里，要被调用的过程，不再是一个简单名字，而是一个组合式。“求值各个子表达式”，意味着这三个子表达式都要被求值，包括第一个子表达式——这个组合式。虽然在逻辑上，第一个和后面两个不同，但它们都将被一视同仁地求值。于是，第一个子表达式也被（递归地）求值。若 @racket[b] 大于 @racket[0] ，则它的结果是 @racket[+] ，这相当于对 @racket[(+ a b)] 求值。否则，相当于对 @racket[(- a b)] 求值。这样，便计算出了 @racket[b] 的绝对值与 @racket[a] 的和。
 
+@; ----------------------------------------------------------------------
+
 @section{练习 1.5}
 
 解释器采用应用序求值时：
@@ -104,4 +112,88 @@
 
 解释器采用正则序求值时：
 
-无需对第二个参数 @racket[(p)] 求值，解释器就能直接开始执行 @racket[test] 的过程体。于是对 @racket[(if (= 0 0) 0 (p))] 求值。注意题中明确指出 @tt{if} 的求值规则仍然是原样，于是对谓词先求值。在得到 @racket[#t] ，即真值之后，根据求值规则，解释器只会对 @italic{<consequent>} ，也就是 @racket[0] ，求值，而根本不会对 @italic{<alternative>} ，也就是 @racket[(p)] ，求值。因此，解释器不会陷入无限递归 / 循环，而能够正常求出并打印 @racket[0] 。
+无需对第二个参数 @racket[(p)] 求值，解释器就能直接开始执行 @racket[test] 的过程体。于是对 @racket[(if (= 0 0) 0 (p))] 求值。注意题中明确指出 @tt{if} 的求值规则仍然是原样，于是对谓词 @italic{<predicate>} 先求值。在得到 @racket[#t] ，即真值之后，根据求值规则，解释器只会对 @italic{<consequent>} ，也就是 @racket[0] ，求值，而根本不会对 @italic{<alternative>} ，也就是 @racket[(p)] ，求值。因此，解释器不会陷入无限递归 / 循环，而能够正常求出并打印 @racket[0] 。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 1.6}
+
+@margin-note{原书在 4.2.1 节再次提到了这道练习 1.6。那一节里做出了一个类似的操作，定义了 @racket[unless] 过程，之后也进行了讲解。}
+
+@bold{重点： @tt{if} 是特殊形式，而 @racket[new-if] 只是一个普通的过程。}
+
+我们使用的 Scheme 解释器是采用应用序求值的，所以在对 @racket[(new-if a b c)] 求值时，解释器会先对 @racket[new-if] 、 @racket[a] 、 @racket[b] 和 @racket[c] 这四个表达式全都求值，然后再去执行 @racket[new-if] 的过程体。
+
+而 @tt{if} 作为特殊形式，是有着它独特的求值规则的：先对谓词 @italic{<predicate>} 求值，再去选择性地求值 @italic{<consequent>} 和 @italic{<alternative>} 其中的一个。
+
+在 @racket[sqrt-iter] 里，原本的 @tt{if} 中， @italic{<alternative>} 是一个（尾）递归调用。在谓词 @italic{<predicate>} 为真时，根据上面的规则，这个递归调用便不会被求值，从而使程序能够停止。使用 @racket[new-if] 替换 @tt{if} 之后，这个递归调用无论如何都会被求值，从而造成无限递归。此外，由于 @racket[new-if] 是一个普通的过程，所以这个递归调用不再是尾递归了，计算过程不能被强制优化成常数空间的迭代计算过程，因此解释器会消耗越来越多的内存空间，最终导致错误。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 1.7}
+
+如下：
+
+@margin-note{下一节（1.1.8）指出，定义在全局的过程会占用名字，这个问题其实这里已经能感受到了：为了避免和正文里的过程重名，我们添加了一些“@tt{ratio-}”前缀。}
+
+@ss-interaction[
+(code:line (code:comment "为了获取两次猜测之间的“改变值”，我们要新增一个参数 previous-guess，记录上一次的猜测值。"))
+
+(define (ratio-good-enough? previous-guess guess)
+  (< (abs (/ (- guess previous-guess) guess)) 0.001))
+(code:line
+(define (ratio-sqrt-iter previous-guess guess x)
+  (if (ratio-good-enough? previous-guess guess)
+      guess
+      (ratio-sqrt-iter guess
+                       (improve guess x)
+                       x)))
+(code:comment "可以看到，在进行递归调用时，guess 成为下一轮的 previous-guess，而下一轮的 guess 则由 improve 计算得出。"))
+
+(code:line
+(define (ratio-sqrt x)
+  (ratio-sqrt-iter 2.0 1.0 x))
+(code:comment "一开始把虚假的“上一次的猜测值”设成 2.0，这是为了能和 1.0 相比足够不一样。"))
+
+(ratio-sqrt 9)
+(ratio-sqrt (+ 100 37))
+(ratio-sqrt (+ (ratio-sqrt 2) (ratio-sqrt 3)))
+(square (ratio-sqrt 1000))
+]
+
+@; ----------------------------------------------------------------------
+
+@section{练习 1.8}
+
+和正文中几乎一样，只有公式不同。
+
+@ss-interaction[
+
+(define (cube x)
+  (* x x x))
+
+(define (cbrt x)
+  (cbrt-iter 1.0 x))
+
+(define (cbrt-iter guess x)
+  (if (cbrt-good-enough? guess x)
+      guess
+      (cbrt-iter (cbrt-improve guess x)
+                 x)))
+
+(code:line
+(define (cbrt-improve guess x)
+  (/ (+ (/ x (square guess))
+        (* 2 guess))
+     3))
+(code:comment "这里是不同的部分"))
+
+(define (cbrt-good-enough? guess x)
+  (< (abs (- (cube guess) x)) 0.001))
+
+(cbrt 8)
+(cbrt 27)
+(cbrt 2)
+(cube (cbrt 2))
+]
+

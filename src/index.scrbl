@@ -8,7 +8,7 @@
 
 @(require scribble/manual
           scribble-math
-          "mreval.rkt")
+          "interaction.ss")
 
 @; ----------------------------------------------------------------------
 
@@ -35,8 +35,7 @@ SICP，全名为《计算机程序的构造和解释》（@italic{Structure and 
 本项目使用了：
 
 @itemlist[@item{Racket 文档工具 @hyperlink["https://docs.racket-lang.org/scribble/"]{Scribble} ，用于生成网页，便于浏览。}
-          @item{Racket 包 @hyperlink["https://docs.racket-lang.org/scribble-math/index.html"]{@tt{scribble-math}} ，用于在代码中写出数学公式。}
-          @item{Racket 包 @hyperlink["https://docs.racket-lang.org/sicp-manual/index.html"]{@tt{sicp-manual}} ，便于在代码中引用书本里定义的工具。}]
+          @item{Racket 包 @hyperlink["https://docs.racket-lang.org/scribble-math/index.html"]{@tt{scribble-math}} ，用于在代码中写出数学公式。}]
 
 @; ----------------------------------------------------------------------
 
