@@ -263,7 +263,7 @@ TODO
 
 @itemlist[@item{从 @racket[A] 的过程体能直接看出，@racket[(A 0 n)] 等同于 @racket[(* 2 n)]，所以计算的是  @${2n} 。}
           @item{从第一个计算过程可以看出，@racket[(A 1 n)] 等同于 @${2^n} 。但当 @${n=0} 时，结果为 @${0} ，不符合通常的 @${2^0 = 1} 。}
-          @item{从第三个计算过程可以看出，@racket[(A 2 n)] 等同于 @racket[(A 1 (A 1 ... (A 1 2) ...))] ，其中总共有 @${n-1} 个 @racket[1] 。所以计算的是 @${\underbrace{2^{2^{\cdot^{\cdot^{2}}}}}_n} ，这种运算称为迭代幂次，可以在网上查阅有关资料。用高德纳箭号表示法，写作 @${2 \uparrow \uparrow n} 。也可以写作 @${{^n}2} 。同样，当 @${n=0} 时，结果为 @${0} ，不符合通常的 @${2 \uparrow \uparrow 0 = 1} 。}]
+          @item{从第三个计算过程可以看出，@racket[(A 2 n)] 等同于 @racket[(A 1 (A 1 ... (A 1 2) ...))] ，其中总共有 @${n-1} 个 @racket[1] 。所以计算的是 @${\underbrace{2^{2^{\cdot^{\cdot^{2}}}}}_n} ，“指数塔”里有 @${n} 个 @${2} 。这种运算称为迭代幂次，可以在网上查阅有关资料。用高德纳箭号表示法，写作 @${2 \uparrow \uparrow n} 。也可以写作 @${{^n}2} 。同样，当 @${n=0} 时，结果为 @${0} ，不符合通常的 @${2 \uparrow \uparrow 0 = 1} 。}]
 
 综上所述：
 
@@ -272,13 +272,13 @@ TODO
   \texttt{(A 0 n)} &= 2n    \\
   \texttt{(A 1 n)} &=
     \begin{cases}
-      0, & \text{if } x = 0 \\
-      2^n, & \text{if } x > 0
+      0, & \text{if } n = 0 \\
+      2^n, & \text{if } n > 0
     \end{cases}             \\
   \texttt{(A 2 n)} &=
     \begin{cases}
-      0, & \text{if } x = 0 \\
-      \underbrace{2^{2^{\cdot^{\cdot^{2}}}}}_n = 2 \uparrow \uparrow n = {^n}2, & \text{if } x > 0
+      0, & \text{if } n = 0 \\
+      \underbrace{2^{2^{\cdot^{\cdot^{2}}}}}_n = 2 \uparrow \uparrow n = {^n}2, & \text{if } n > 0
     \end{cases}
 \end{align}
 }
@@ -295,3 +295,75 @@ TODO
 (map g (list 0 1 2 3 4))
 (map h (list 0 1 2 3 4))
 ]
+
+事实上，更一般地， @racket[(A x y)] 可以直接用高德纳箭号表示法表示：
+
+@$${
+\texttt{(A x y)} =
+  \begin{cases}
+    0,  & \text{if } y = 0 \\
+    2n, & \text{if } y > 0 \text{ and } x = 0 \\
+    2 \uparrow^{x} y, & \text{if } y > 0 \text{ and } x > 0
+  \end{cases}
+}
+
+对比一下表格：
+
+@racket[A] 函数（过程） @racket[(A x y)] ：
+
+@tabular[#:column-properties '(border)
+         (list (list "x\\y" "0" "1" "2" "3" "4")
+               (list "0"    "0" "2" "4" "6" "8")
+               (list "1"    "0" "2" "4" "8" "16")
+               (list "2"    "0" "2" "4" "16" "65536")
+               (list "3"    "0" "2" "4" "65536" "2↑↑65536"))]
+
+高德纳箭号 @${2 \uparrow^{x} y} ：
+
+@tabular[#:column-properties '(border)
+         (list (list "x\\y" "0" "1" "2" "3" "4")
+               (list "0"    "N/A" "N/A" "N/A" "N/A" "N/A")
+               (list "1"    "1" "2" "4" "8" "16")
+               (list "2"    "1" "2" "4" "16" "65536")
+               (list "3"    "1" "2" "4" "65536" "2↑↑65536"))]
+
+应当指出，对于 @racket[A] 函数（过程），如果规定 @${y = 0} 但 @${x > 0} 时返回值为 @${1} ，会显得更自然一些。至于 @${x = y = 0} 的情况，这里存在一个问题：
+
+@itemlist[@item{如果规定 @${\texttt{(A 0 0)} = 1} ，就会和 @${\texttt{(A 0 y)} = 2y} 的规律冲突；}
+          @item{如果规定 @${\texttt{(A 0 0)} = 0} ，又会和 @${\texttt{(A x 0)} = 1} 的规律冲突。}]
+
+这里的处境就像定义 @${0^0} 一样：
+
+@itemlist[@item{如果定义 @${0^0 = 0} ，就会和 @${x^0 = 1} 的规律冲突；}
+          @item{如果定义 @${0^0 = 1} ，又会和 @${0^x = 0} 的规律冲突。}]
+
+但正如组合数学等领域为了方便，一般会定义 @${0^0 = 1} 一样，这里规定 @${\texttt{(A 0 0)} = 0} ，就能够完全符合一个更能体现这个函数（过程）特性的规律：
+
+@$${
+  2 [x+1] \texttt{(A x y)} = \texttt{(A x (+ y 1))}
+}
+
+这里的方括号 @${[n]} 表示 n 级运算：1 级运算是加法，2 级运算是乘法，3 级运算是幂，4 级运算是迭代幂次……在 @${n \ge 3} 时，有 @${a[n]b = a \uparrow^{n-2} b} 。
+
+修改后的 @racket[A] 过程，定义如下：
+
+@racketblock[
+(define (A x y)
+  (cond ((= x 0) (* 2 y))
+        ((= y 0) 1)
+        (else (A (- x 1)
+                 (A x (- y 1))))))
+]
+
+表格如下：
+
+@tabular[#:column-properties '(border)
+         (list (list "x\\y" "0" "1" "2" "3" "4")
+               (list "0"    "0" "2" "4" "6" "8")
+               (list "1"    "1" "2" "4" "8" "16")
+               (list "2"    "1" "2" "4" "16" "65536")
+               (list "3"    "1" "2" "4" "65536" "2↑↑65536"))]
+
+最后，通常所说的阿克曼函数 @${A(m, n)} 和这里的 @racket[A] 函数（过程）其实也有一些小区别。在 @${m > 2} 时，有结论 @${A(m, n) = 2 \uparrow^{m - 2}(n + 3) - 3} 。可以自行查阅相关资料。
+
+@; TODO 用代码自动生成上方的表格
