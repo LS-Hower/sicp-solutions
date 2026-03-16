@@ -16,8 +16,6 @@
 
 @; ----------------------------------------------------------------------
 
-更新日期：2026-03-16
-
 @hyperlink["./index.html"]{返回主页面}
 
 @; ----------------------------------------------------------------------
@@ -201,7 +199,31 @@
 
 @section{练习 1.9}
 
-TODO
+@verbatim{
+(+ 4 5)
+(inc (+ 3 5))
+(inc (inc (+ 2 5)))
+(inc (inc (inc (+ 1 5))))
+(inc (inc (inc (inc (+ 0 5)))))
+(inc (inc (inc (inc 5))))
+(inc (inc (inc 6)))
+(inc (inc 7))
+(inc 8)
+9
+}
+
+上面是一个递归计算过程。
+
+@verbatim{
+(+ 4 5)
+(+ 3 6)
+(+ 2 7)
+(+ 1 8)
+(+ 0 9)
+9
+}
+
+上面是一个迭代计算过程。
 
 @; ----------------------------------------------------------------------
 
@@ -408,4 +430,122 @@ TODO
 
 最后，通常所说的阿克曼函数 @${A(m, n)} 和这里的 @racket[A] 以及 @racket[A-alt] 函数（过程）其实也有一些小区别。具体地， @${A(m, n) = 2[m](n+3) - 3} 。可以自行查阅相关资料。
 
-@; TODO 用代码自动生成上方的表格
+@; TODO 用代码自动生成上方的表格（稍微有点难度）
+
+@; ----------------------------------------------------------------------
+
+@section{练习 1.11}
+
+直接将定义翻译成 Scheme，就是采用递归计算过程的版本：
+
+@ss-interaction[
+(define (f n)
+  (if (< n 3)
+      n
+      (+ (* 1 (f (- n 1)))
+         (* 2 (f (- n 2)))
+         (* 3 (f (- n 3))))))
+(map f (list 0 1 2 3 4 5 6 7 8 9 10))
+]
+
+采用迭代计算过程的版本：
+
+@ss-interaction[
+(define (f n)
+  (define (iter a b c i)
+    (if (= i n)
+        c
+        (iter b
+              c
+              (+ (* 3 a) (* 2 b) (* 1 c))
+              (+ i 1))))
+  (if (< n 3)
+      n
+      (iter 0 1 2 2)))
+(map f (list 0 1 2 3 4 5 6 7 8 9 10))
+]
+
+@racket[iter] 过程的参数总是满足： @racket[a] 、 @racket[b] 、 @racket[c] 分别等于 @${f(i-3)} 、 @${f(i-2)} 、 @${f(i-1)} 。
+
+
+@; ----------------------------------------------------------------------
+
+@section{练习 1.12}
+
+如下， @racket[binomial] 过程计算杨辉三角（帕斯卡三角形）第 n 行第 k 个数（从 0 开始计数）。
+
+@margin-note{这里第二个交互只是为了较为完整地展示计算结果，不需要理解。如果读者已经在后面的章节学习了 @racket[map] 过程，那么只需要知道：在 Racket 中， @racket[(inclusive-range 0 n)] 返回一个列表，元素从 @racket[0] 到 @racket[n] ，步长为 @racket[1] 。}
+
+@ss-interaction[
+(define (binomial n k)
+  (if (or (= k 0) (= k n))
+      1
+      (+ (binomial (- n 1) (- k 1))
+         (binomial (- n 1) k))))
+(map (lambda (n)
+       (map (lambda (k)
+              (binomial n k))
+            (inclusive-range 0 n)))
+     (list 0 1 2 3 4))
+]
+
+这是一个递归计算过程，而且有不少冗余计算。这个过程计算出来的是二项式系数 @${\dbinom{n}{k} = C_n^k} （原书脚注也有提及），而时间复杂度也是 @${\Theta \left( \dbinom{n}{k} \right)} 。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 1.13}
+
+这里先使用数学归纳法证明
+
+@$${
+  \mathrm{Fib}(n)
+  = \dfrac{1}{\sqrt{5}}(\varphi^n - \psi^n)
+  = \dfrac{1}{\sqrt{5}} \left( \left(\dfrac{1 + \sqrt{5}}{2} \right)^n - \left(\dfrac{1 - \sqrt{5}}{2} \right)^n \right)
+}
+
+@itemlist[
+  #:style 'ordered
+  @item{基础：当 @${n=0} 或 @${n=1} 时，代入验证即可得到该公式成立。}
+  @item{递推：假设当 @${n=k} 以及 @${n=k-1} 时公式成立，现在要证明当 @${n=k+1} 时公式也成立。过程见下方：}
+]
+
+@$${
+  \begin{align*}
+    \mathrm{Fib}(k+1)
+      &= \mathrm{Fib}(k) + \mathrm{Fib}(k-1) \\
+      &= \dfrac{1}{\sqrt{5}} \left( \left(\dfrac{1 + \sqrt{5}}{2} \right)^k - \left(\dfrac{1 - \sqrt{5}}{2} \right)^k \right) + \dfrac{1}{\sqrt{5}} \left( \left(\dfrac{1 + \sqrt{5}}{2} \right)^{k-1} - \left(\dfrac{1 - \sqrt{5}}{2} \right)^{k-1} \right) \\
+      &= \dfrac{1}{\sqrt{5}} \left( \left(\dfrac{1 + \sqrt{5}}{2} \right)^k - \left(\dfrac{1 - \sqrt{5}}{2} \right)^k + \left(\dfrac{1 + \sqrt{5}}{2} \right)^{k-1} - \left(\dfrac{1 - \sqrt{5}}{2} \right)^{k-1} \right) \\
+      &= \dfrac{1}{\sqrt{5}} \left( \left(1 + \dfrac{1 + \sqrt{5}}{2} \right) \left(\dfrac{1 + \sqrt{5}}{2} \right)^{k-1} - \left(1 + \dfrac{1 - \sqrt{5}}{2} \right) \left(\dfrac{1 - \sqrt{5}}{2} \right)^{k-1} \right) \\
+      &= \dfrac{1}{\sqrt{5}} \left( \left(\dfrac{3 + \sqrt{5}}{2} \right) \left(\dfrac{1 + \sqrt{5}}{2} \right)^{k-1} - \left(\dfrac{3 - \sqrt{5}}{2} \right) \left(\dfrac{1 - \sqrt{5}}{2} \right)^{k-1} \right) \\
+      &= \dfrac{1}{\sqrt{5}} \left( \left(\dfrac{1 + \sqrt{5}}{2} \right)^2 \left(\dfrac{1 + \sqrt{5}}{2} \right)^{k-1} - \left(\dfrac{1 - \sqrt{5}}{2} \right)^2 \left(\dfrac{1 - \sqrt{5}}{2} \right)^{k-1} \right) \\
+      &= \dfrac{1}{\sqrt{5}} \left( \left(\dfrac{1 + \sqrt{5}}{2} \right)^{k+1} - \left(\dfrac{1 - \sqrt{5}}{2} \right)^{k+1} \right)
+  \end{align*}
+}
+
+确实与 @${n=k+1} 时的公式相同。因此，
+
+@$${
+  \mathrm{Fib}(n)
+  = \dfrac{1}{\sqrt{5}}(\varphi^n - \psi^n)
+  = \dfrac{1}{\sqrt{5}} \left( \left(\dfrac{1 + \sqrt{5}}{2} \right)^n - \left(\dfrac{1 - \sqrt{5}}{2} \right)^n \right)
+}
+
+得证。
+
+现在来解答问题。
+
+我们设 @${\mathrm{Fib}(n)} 与 @${\dfrac{\varphi^n}{\sqrt{5}}} 的距离（差值的绝对值）为 @${\mathrm{dist}(n)}：
+
+@${
+  \begin{align*}
+    \mathrm{dist}(n)
+      &= \left| \mathrm{Fib}(n) - \dfrac{\varphi^n}{\sqrt{5}} \right|  \\
+      &= \left| \dfrac{1}{\sqrt{5}}(\varphi^n - \psi^n) - \dfrac{\varphi^n}{\sqrt{5}} \right| \\
+      &= \dfrac{|\psi^n|}{\sqrt{5}} \\
+      &= \dfrac{|\psi|^n}{\sqrt{5}}
+  \end{align*}
+}
+
+@${\mathrm{dist}(n)} 其实随着 @${n} 的变大会越来越小，因为分子的底 @${|\psi| = \left| \dfrac{1 - \sqrt{5}}{2} \right| = 0.618 \ldots < 1} 。总之当 @${n \ge 0} 时 @${|\psi|^n \le 1} 。而分母上的 @${\sqrt{5} = 2.236 \ldots > 2} 又足够大，所以 @${\mathrm{dist}(n) = \dfrac{|\psi|^n}{\sqrt{5}} < 0.5} 。既然实数 @${\dfrac{\varphi^n}{\sqrt{5}}} 与整数 @${\mathrm{Fib}(n)} 的距离永远小于 @${0.5} ，那么 @${\dfrac{\varphi^n}{\sqrt{5}}} 的值四舍五入到整数之后一定是 @${\mathrm{Fib}(n)} ，这个 @${\mathrm{Fib}(n)} 就是最接近 @${\dfrac{\varphi^n}{\sqrt{5}}} 的整数。
+
+此事在《算法导论》（第 3 版）第 3 章最后几段正文以及最后几道练习中亦有记载。
