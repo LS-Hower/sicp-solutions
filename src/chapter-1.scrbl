@@ -328,7 +328,7 @@
 (map h (list 0 1 2 3 4))
 ]
 
-@subsection{超运算入门}
+@subsection[#:tag "hyperoperation"]{超运算入门}
 
 这里更进一步，探讨更一般的 @racket[(A x y)] 。但在此之前，我们需要先了解一下“超运算”的知识。
 
@@ -549,3 +549,95 @@
 @${\mathrm{dist}(n)} 其实随着 @${n} 的变大会越来越小，因为分子的底 @${|\psi| = \left| \dfrac{1 - \sqrt{5}}{2} \right| = 0.618 \ldots < 1} 。总之当 @${n \ge 0} 时 @${|\psi|^n \le 1} 。而分母上的 @${\sqrt{5} = 2.236 \ldots > 2} 又足够大，所以 @${\mathrm{dist}(n) = \dfrac{|\psi|^n}{\sqrt{5}} < 0.5} 。既然实数 @${\dfrac{\varphi^n}{\sqrt{5}}} 与整数 @${\mathrm{Fib}(n)} 的距离永远小于 @${0.5} ，那么 @${\dfrac{\varphi^n}{\sqrt{5}}} 的值四舍五入到整数之后一定是 @${\mathrm{Fib}(n)} ，这个 @${\mathrm{Fib}(n)} 就是最接近 @${\dfrac{\varphi^n}{\sqrt{5}}} 的整数。
 
 此事在《算法导论》（第 3 版）第 3 章最后几段正文以及最后几道练习中亦有记载。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 1.14}
+
+TODO
+
+@; ----------------------------------------------------------------------
+
+@section{练习 1.15}
+
+分为 a 和 b 两小题。
+
+@subsection{a 小题}
+
+@itemlist[
+  #:style 'ordered
+  @item{在调用 @racket[(sine 12.15)] 时，最后一步是调用一次 @racket[p] 过程；}
+  @item{在调用 @racket[(sine 4.05)] 时，最后一步是调用一次 @racket[p] 过程；}
+  @item{在调用 @racket[(sine 1.35)] 时，最后一步是调用一次 @racket[p] 过程；}
+  @item{在调用 @racket[(sine 0.45)] 时，最后一步是调用一次 @racket[p] 过程；}
+  @item{在调用 @racket[(sine 0.15)] 时，最后一步是调用一次 @racket[p] 过程；}
+  @item{在调用 @racket[(sine 0.05)] 时，不调用 @racket[p] 过程了。}
+]
+
+因此一共调用 @racket[p] 过程 5 次。
+
+@subsection{b 小题}
+
+可以采用解递归式的方式来计算，但这里我们直接精确算出过程调用的次数。
+
+从 a 小题中可以看出，在计算 @racket[(sine a)] 时，调用 @racket[p] 过程的次数，就等于在如下数列中大于 @${0.1} 的项的总个数：
+
+@$${
+  |a|, \dfrac{|a|}{3}, \dfrac{|a|}{3^2}, \dfrac{|a|}{3^3}, \ldots
+}
+
+因此只需找出所有满足 @${\dfrac{|a|}{3^n} \le 0.1} 的整数 @${n} 中最小的那个，记为 @${k} ，然后 @${k+1} 就是 @racket[p] 被调用的总次数。
+
+由 @${\dfrac{|a|}{3^n} \le 0.1} 得 @${10 |a| \le 3^n} ，取对数得 @${\log_{3} (10 |a|) \le n} ，故 @${k = \lceil \log_{3} (10 |a|) \rceil} （这里 @${\lceil a \rceil} 表示向上取整函数，定义为最小的不小于 @${a} 的整数），因此 @racket[p] 被调用的次数为 @${k + 1 = \lceil \log_{3} (10 |a|) \rceil + 1} 。而 @racket[sine] 被调用的次数为 @${k+2} 。此外， @racket[not] 、 @racket[>] 、@racket[*] 、@racket[cube] 等过程被调用的次数也和前两者的调用次数成正比，而它们本身，都可以认为只使用常数空间和时间。
+
+@margin-note{这里的对数底 @${3} 是可以省略掉的，稍后的章节会解释为什么可以这样。}
+
+据此，由于 @${k = \lceil \log_{3} (10 |a|) \rceil = \Theta(log_{3} |a|)} ，所以计算占用的空间和时间资源增长阶都是 @${\Theta(log_{3} |a|)} 。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 1.16}
+
+@ss-interaction[
+(define (fast-expt-iter b n)
+  (define (iter a b n)
+    (cond ((= n 0) a)
+          ((even? n) (iter a (* b b) (/ n 2)))
+          (else (iter (* b a) b (- n 1)))))
+  (iter 1 b n))
+(fast-expt-iter 2 5)
+(fast-expt-iter 3 4)
+]
+
+正如题目中所提示的那样，每次调用 @racket[(iter b n a)] 时，参数都必定满足一个条件： @bold{ @${ab^n} 是恒定不变的，而且等于我们最终应当计算出来的结果。} 只要第一次调用 @racket[iter] 时保证这个条件成立，之后在做递归调用时也一定保证这个条件成立，算法正确性就得到了保证。然后只需去保证 @racket[n] 能够快速下降到 @racket[0] 即可。而从代码中也可以看出，每一步中，如果 @racket[n] 是偶数，就会除以 @racket[2] ；如果是奇数，就会减去 @racket[1] 。所以 @racket[n] 一定会下降到 @racket[0] ，而且很快。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 1.17}
+
+如法炮制。
+
+@ss-interaction[
+(define (double x) (* x 2))
+(define (halve x) (/ x 2))
+(define (doubling-* a b)
+  (cond [(= b 0) 0]
+        [(even? b) (double (doubling-* a (halve b)))]
+        [else (+ a (doubling-* a (- b 1)))]))
+(doubling-* 2 3)
+(doubling-* 4 7)
+]
+
+如果读过练习 1.10 的解答里 @secref["hyperoperation"] 这一部分，可以注意到，幂运算比乘法运算高一级，乘法运算比加法运算高一级，似乎这就是能用对数次乘法计算幂以及用对数次加法计算乘法的原因。然而，我们无法将这个思想扩展到更高一级的运算，比如用对数次幂运算计算迭代幂次。原因是，幂运算和更高级的运算不再满足结合律。
+
+反过来，其实任何具有结合律的运算都可以使用“反复平方法”的思想。具体地，对于任何满足结合律的二元运算符 @${\circ} ，我们都可以只进行对数次 @${\circ} 运算，计算出
+
+@$${
+  \underbrace{a \circ a \circ \cdots \circ a \circ a}_{n}
+}
+
+（其中一共有 @${n} 个 @${a} ，且 @${n > 0} ）。刚刚在正文中用对数次乘法计算幂以及本习题中用对数次加法计算乘法，都是特例：对于前者， @${\circ} 就是乘法运算 @${\times} ，对于后者， @${\circ} 就是加法运算 @${+} 。
+
+如果读者已经了解后面章节有关高阶函数的内容，则可以阅读下方的代码，它能够计算 @${n} 个 @${a} 的 @${\circ} 运算结果，前提是 @${\circ} 运算满足结合律：
+
+TODO
