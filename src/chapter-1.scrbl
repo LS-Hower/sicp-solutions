@@ -536,7 +536,7 @@
 
 我们设 @${\mathrm{Fib}(n)} 与 @${\dfrac{\varphi^n}{\sqrt{5}}} 的距离（差值的绝对值）为 @${\mathrm{dist}(n)}：
 
-@${
+@$${
   \begin{align*}
     \mathrm{dist}(n)
       &= \left| \mathrm{Fib}(n) - \dfrac{\varphi^n}{\sqrt{5}} \right|  \\
@@ -601,15 +601,15 @@ TODO
 @ss-interaction[
 (define (fast-expt-iter b n)
   (define (iter a b n)
-    (cond ((= n 0) a)
-          ((even? n) (iter a (* b b) (/ n 2)))
-          (else (iter (* b a) b (- n 1)))))
+    (cond [(= n 0) a]
+          [(even? n) (iter a (* b b) (/ n 2))]
+          [else (iter (* b a) b (- n 1))]))
   (iter 1 b n))
 (fast-expt-iter 2 5)
 (fast-expt-iter 3 4)
 ]
 
-正如题目中所提示的那样，每次调用 @racket[(iter b n a)] 时，参数都必定满足一个条件： @bold{ @${ab^n} 是恒定不变的，而且等于我们最终应当计算出来的结果。} 只要第一次调用 @racket[iter] 时保证这个条件成立，之后在做递归调用时也一定保证这个条件成立，算法正确性就得到了保证。然后只需去保证 @racket[n] 能够快速下降到 @racket[0] 即可。而从代码中也可以看出，每一步中，如果 @racket[n] 是偶数，就会除以 @racket[2] ；如果是奇数，就会减去 @racket[1] 。所以 @racket[n] 一定会下降到 @racket[0] ，而且很快。
+正如题目中所提示的那样，每次调用 @racket[(iter a b n)] 时，参数都必定满足一个条件： @bold{ @${ab^n} 是恒定不变的，而且等于我们最终应当计算出来的结果。} 要维持好这个不变量，只要第一次调用 @racket[iter] 时保证这个条件成立，之后在做递归调用时也一定保证这个条件成立。然后只需去保证 @racket[n] 能够快速下降到 @racket[0] 即可。而从代码中也可以看出，每一步中，如果 @racket[n] 是偶数，就会除以 @racket[2] ；如果是奇数，就会减去 @racket[1] 。所以 @racket[n] 一定会下降到 @racket[0] ，而且很快。算法的正确性和效率由此得到保证。
 
 @; ----------------------------------------------------------------------
 
