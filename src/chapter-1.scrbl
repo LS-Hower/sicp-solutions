@@ -596,7 +596,7 @@ TODO
 
 @; ----------------------------------------------------------------------
 
-@section{练习 1.16}
+@section[#:tag "exercise 1.16"]{练习 1.16}
 
 @ss-interaction[
 (define (fast-expt-iter b n)
@@ -618,8 +618,6 @@ TODO
 如法炮制。
 
 @ss-interaction[
-(define (double x) (* x 2))
-(define (halve x) (/ x 2))
 (define (doubling-* a b)
   (cond [(= b 0) 0]
         [(even? b) (double (doubling-* a (halve b)))]
@@ -640,4 +638,221 @@ TODO
 
 如果读者已经了解后面章节有关高阶函数的内容，则可以阅读下方的代码，它能够计算 @${n} 个 @${a} 的 @${\circ} 运算结果，前提是 @${\circ} 运算满足结合律：
 
-TODO
+@ss-interaction[
+(define (double-and-add op n a)
+  (cond [(= n 1) a]
+        [(even? n)
+          (let ([half (double-and-add op (/ n 2) a)])
+            (op half half))]
+        [else (op a (double-and-add op (- n 1) a))]))
+(double-and-add + 7 2)
+(double-and-add * 7 2)
+]
+
+若 @racket[op] 是满足结合律的二元运算符 @${\circ} ， @racket[n] 是正整数，则上述过程会计算出 @${\underbrace{a \circ a \circ \cdots \circ a \circ a}_{n}} 。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 1.18}
+
+依旧维持不变量。就像 @secref["exercise 1.16"] 中维持 @racket[(iter a b n)] 每次被调用时有 @${ab^n} 恒定且等于我们应当计算出来的最终结果一样，我们这次维持 @${a+bn} 恒定且等于我们应当计算出来的最终结果。
+
+@ss-interaction[
+(define (doubling-*-iter a b)
+  (define (iter a b n)
+    (cond [(= n 0) a]
+          [(even? n) (iter a (double b) (halve n))]
+          [else (iter (+ b a) b (- n 1))]))
+  (iter 0 a b))
+(doubling-*-iter 2 5)
+(doubling-*-iter 3 4)
+]
+
+@; ----------------------------------------------------------------------
+
+@section{练习 1.19}
+
+记住变换 @${T_{p, q}((a, \, b)) = (bq+aq+ap, \, bp+aq)} ，它接收一个数对，给出一个数对。现在我们计算 @${T_{p, q}(T_{p, q}((a, \, b)))} 。
+
+@$${
+  \begin{align*}
+    T_{p, q}(T_{p, q}((a, \, b)))
+      &= T_{p, q}((bq+aq+ap, \, bp+aq))  \\
+      &= ((bp+aq)q+(bq+aq+ap)q+(bq+aq+ap)p, \, (bp+aq)p+(bq+aq+ap)q)  \\
+      &= (bpq + aq^2 + bq^2 + aq^2 + apq + bpq + apq + ap^2, \, bp^2 + apq + bq^2 + aq^2 + apq)  \\
+      &= (a (2q^2 + 2pq + p^2) + b (q^2 + 2pq), \, a (q^2 + 2pq) + b (q^2 + p^2))  \\
+      &= (b (q^2 + 2pq) + a (q^2 + 2pq) + a (q^2 + p^2), \, b (q^2 + p^2) + a (q^2 + 2pq))
+  \end{align*}
+}
+
+我们发现如果令 @${p' = q^2 + p^2} ，令 @${q' = q^2 + 2pq} ，那么上式结果可以写成 @${(bq' + aq' + ap', \, bp' + aq')} ，这正是 @${T_{p', q'}} 这一变换应用于 @${(a, b)} 的结果。也就是说，正如题面中所说，如果应用变换 @${T_{p, q}} 两次，效果就等同于应用变换 @${T_{p', q'}} 一次。然后通过 @${p} 和 @${q} 算出其中 @${p'} 和 @${q'} 的计算方式刚刚已经给出了：
+
+@$${
+  \begin{align}
+    p' &= p^2 + q^2  \\
+    q' &= q^2 + 2pq
+  \end{align}
+}
+
+于是，我们可以填空了：
+
+@ss-interaction[
+(define (fib n)
+  (fib-iter 1 0 0 1 n))
+(define (fib-iter a b p q count)
+  (cond ((= count 0) b)
+        ((even? count)
+         (fib-iter a
+                   b
+                   (+ (* p p) (* q q))
+                   (+ (* q q) (* 2 p q))
+                   (/ count 2)))
+        (else (fib-iter (+ (* b q) (* a q) (* a p))
+                        (+ (* b p) (* a q))
+                        p
+                        q
+                        (- count 1)))))
+(map fib (list 0 1 2 3 4 5 6 7))
+]
+
+主播主播，你的 @${T_{p,q}} 变换还是太吃操作了，有没有简单一点的理解方法？
+
+有的有的，我们可以用 @${2 \times 2} 矩阵来理解。我们把重新看斐波那契数列的递推规律：
+
+@$${
+  \begin{align*}
+    F_{n+2} = 1 \cdot F_{n+1} + 1 \cdot F_{n}  \\
+    F_{n+1} = 1 \cdot F_{n+1} + 0 \cdot F_{n}
+  \end{align*}
+}
+
+我们把它写成矩阵形式：
+
+@$${
+  \begin{bmatrix}F_{n+2} \\ F_{n+1} \end{bmatrix}
+  =
+  \begin{bmatrix} 1 & 1 \\ 1 & 0 \end{bmatrix}
+  \begin{bmatrix} F_{n+1} \\ F_{n} \end{bmatrix}
+}
+
+也就是说，二维向量 @${\begin{bmatrix} F_{n+1} \\ F_{n} \end{bmatrix}} 左乘一下这个矩阵就得到 @${\begin{bmatrix} F_{n+2} \\ F_{n+1} \end{bmatrix}} 了。那么从 @${\begin{bmatrix} F_{1} \\ F_{0} \end{bmatrix}} 出发，左乘这个矩阵 @${n} 次，就可以得到 @${\begin{bmatrix} F_{n+1} \\ F_{n} \end{bmatrix}} 了。又考虑到矩阵乘法满足结合律，所以我们可以提前算出 @${n} 个矩阵相乘的结果，然后让它左乘 @${\begin{bmatrix} F_{1} \\ F_{0} \end{bmatrix}} ，就可以得到 @${\begin{bmatrix} F_{n+1} \\ F_{n} \end{bmatrix}} 了。用数学语言表达这个思路，就是：
+
+@$${
+  \begin{align*}
+
+    \begin{bmatrix} F_{n+1} \\ F_{n} \end{bmatrix}
+    &=
+    \underbrace{
+      \begin{bmatrix} 1 & 1 \\ 1 & 0 \end{bmatrix}
+      \begin{bmatrix} 1 & 1 \\ 1 & 0 \end{bmatrix}
+      \cdots
+      \begin{bmatrix} 1 & 1 \\ 1 & 0 \end{bmatrix}
+    }_{n}
+    \begin{bmatrix} F_{1} \\ F_{0} \end{bmatrix}
+
+    \\
+
+    \begin{bmatrix} F_{n+1} \\ F_{n} \end{bmatrix}
+    &=
+    {\begin{bmatrix} 1 & 1 \\ 1 & 0 \end{bmatrix}}^{n}
+    \begin{bmatrix} F_{1} \\ F_{0} \end{bmatrix}
+
+    \\
+
+    \begin{bmatrix} F_{n+1} \\ F_{n} \end{bmatrix}
+    &=
+    {\begin{bmatrix} 1 & 1 \\ 1 & 0 \end{bmatrix}}^{n}
+    \begin{bmatrix} 1 \\ 0 \end{bmatrix}
+
+  \end{align*}
+}
+
+至于 @${\begin{bmatrix} 1 & 1 \\ 1 & 0 \end{bmatrix}^{n}} 又如何计算呢？仍然可以利用本节中提到的平方求幂思想，因为矩阵乘法是满足结合律的。算出这个矩阵幂后，只需和 @${\begin{bmatrix} 1 \\ 0 \end{bmatrix}} 相乘，我们就能得到 @${\begin{bmatrix} F_{n+1} \\ F_{n} \end{bmatrix}} 了。
+
+事实上， @${T_{p,q}} 方法就是矩阵平方求幂方法的另一种表达方式罢了。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 1.20}
+
+使用正则序+替换模型，看一下过程：
+
+@verbatim{
+(gcd 206 40)
+
+(if (= 40 0)
+    206
+    (gcd 40
+         (remainder 206 40)))
+
+(gcd 40 (remainder 206 40))
+
+(if (= (remainder 206 40) 0) ; 将会求值 1 次 remainder
+    40
+    (gcd (remainder 206 40)
+         (remainder 40 (remainder 206 40))))
+
+(gcd (remainder 206 40)
+     (remainder 40 (remainder 206 40)))
+
+(if (= (remainder 40 (remainder 206 40)) 0)  ; 将会求值 2 次 remainder
+    (remainder 206 40)
+    (gcd (remainder 40 (remainder 206 40))
+         (remainder (remainder 206 40) (remainder 40 (remainder 206 40)))))
+
+(gcd (remainder 40 (remainder 206 40))
+     (remainder (remainder 206 40) (remainder 40 (remainder 206 40))))
+
+(if (= (remainder (remainder 206 40) (remainder 40 (remainder 206 40))) 0) ; 将会求值 4 次 remainder
+    (remainder 40 (remainder 206 40))
+    (gcd (remainder (remainder 206 40) (remainder 40 (remainder 206 40)))
+         (remainder (remainder 40 (remainder 206 40))
+                    (remainder (remainder 206 40) (remainder 40 (remainder 206 40))))))
+
+(gcd (remainder (remainder 206 40) (remainder 40 (remainder 206 40)))
+     (remainder (remainder 40 (remainder 206 40))
+                (remainder (remainder 206 40) (remainder 40 (remainder 206 40)))))
+
+(if (= (remainder (remainder 40 (remainder 206 40))
+                (remainder (remainder 206 40) (remainder 40 (remainder 206 40))))
+       0)  ; 将会求值 7 次 remainder
+    (remainder (remainder 206 40) (remainder 40 (remainder 206 40)))
+    (gcd (remainder (remainder 40 (remainder 206 40))
+                    (remainder (remainder 206 40) (remainder 40 (remainder 206 40))))
+         (remainder (remainder (remainder 206 40) (remainder 40 (remainder 206 40)))
+                    (remainder (remainder 40 (remainder 206 40))
+                               (remainder (remainder 206 40) (remainder 40 (remainder 206 40)))))))
+
+; 这里 if 的条件终于为真了
+
+(remainder (remainder 206 40) (remainder 40 (remainder 206 40)))  ; 将会求值 4 次 remainder
+
+2
+}
+
+结束。
+
+对 @racket[remainder] 共计求值 1+2+4+7+4 = 18 次。
+
+这里出现的数列 @${1, 2, 4, 7, 12, 20, \ldots} 满足前两项之和再加 1 等于后一项。实际上它就是斐波那契数列减去 1。
+
+使用应用序：
+
+@verbatim{
+(gcd 206 40)
+(if (= 40 0) 206 (gcd 40 (remainder 206 40)))  ; 将会求值 1 次 remainder
+(gcd 40 6)
+(if (= 6 0) 40 (gcd 6 (remainder 40 6)))  ; 将会求值 1 次 remainder
+(gcd 6 4)
+(if (= 4 0) 6 (gcd 4 (remainder 6 4)))  ; 将会求值 1 次 remainder
+(gcd 4 2)
+(if (= 2 0) 4 (gcd 2 (remainder 4 2)))  ; 将会求值 1 次 remainder
+(gcd 2 0)
+(if (= 0 0) 2 (gcd 0 (remainder 2 0)))  ; 这次不再求值 remainder
+2
+}
+
+结束。
+
+对 @racket[remainder] 共计求值 4 次。
+

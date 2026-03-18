@@ -13,6 +13,14 @@
 (define (improve guess x)
   (average guess (/ x guess)))
 
+; -------- exercise 1.17 --------
+
+(define (double x)
+  (* x 2))
+
+(define (halve x)
+  (/ x 2))
+
 ; -------- end --------
 
 (provide (all-defined-out))

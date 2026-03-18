@@ -16,7 +16,7 @@
 
 @; ----------------------------------------------------------------------
 
-更新日期：2026-03-16
+更新日期：2026-03-18
 
 SICP，全名为《计算机程序的构造和解释》（@italic{Structure and Interpretation of Computer Programs}），作者为 Harold Abelson、Gerald Jay Sussman 和 Julie Sussman。
 
