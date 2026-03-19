@@ -977,3 +977,69 @@ done.
 }
 
 三个平均值分别为 @${135.00, \, 443.33, \, 1390.67} 。拿它们分别去除 @secref["exercise 1.22"] 中对应的测量值 @${260.33, \, 812.33, \, 2588.33} ，分别得到 @${1.93, \, 1.83, \, 1.86} 。这些比率比较接近但略小于 2。理论上，在 @racket[(start-prime-test-halved n (runtime))] 和 @racket[(report-prime (- (runtime) start-time))] 中两次 @racket[(runtime)] 的求值之间出现了除 @racket[prime?] （或 @racket[halved-prime?] ）以外的少量操作，以及调用 @racket[next] 过程并对 @tt{if} 特殊形式求值可能也比单纯的 @racket[(+ test-divisor 1)] 慢一点点，但更重要的因素可能仍然只是普通的测量误差罢了。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 1.24}
+
+@racketblock[
+(define (timed-prime-test-fast n)
+  (newline)
+  (display n)
+  (start-prime-test-fast n (runtime)))
+
+(define (start-prime-test-fast n start-time)
+  (if (fast-prime? n 50)
+      (report-prime (- (runtime) start-time))
+      'placeholder))
+
+(define (search-for-primes-fast n)
+  (define (iter needed n)
+    (cond [(= needed 0)
+            (newline)
+            (display "done.")]
+          [(even? n)
+            (iter needed (+ n 1))]
+          [(fast-prime? n 50)
+            (timed-prime-test-fast n)
+            (iter (- needed 1) (+ n 1))]
+          [else
+            (iter needed (+ n 1))]))
+  (iter 3 n))
+]
+
+这里将测试次数设为 50。
+
+@racket[fast-prime?] 还是太快了，我们用 @racket[expt] 来生成输入数据。 @racket[(expt a b)] 计算 @${a^b} 的值。
+
+这里测试了如下数据：
+
+@racketblock[
+(search-for-primes-fast (expt 10 50))
+(search-for-primes-fast (expt 10 100))
+(search-for-primes-fast (expt 10 150))
+(search-for-primes-fast (expt 10 200))
+(search-for-primes-fast (expt 10 250))
+(search-for-primes-fast (expt 10 300))
+]
+
+得到的结果是：
+
+@verbatim{
+(0 0 0)
+(16 0 16)
+(31 31 15)
+(46 47 47)
+(94 79 78)
+(141 141 157)
+}
+
+用时开始时基本是线性增加（一次增加一个常数）的，符合预期，但后期增长变快了，可能的原因是整数本身变得更长了。乘法和模运算的用时不会永远是常数。当然，测量误差也一定会存在。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 1.25}
+
+这样改会严重拖慢程序。
+
+正文中已经说过，我们的 @racket[expmod] 过程的一个优点就在于，计算过程中从来不需要对比 @racket[n] 大很多的数进行操作。具体地，在计算 @racket[(expmod a b n)] 时，可能遇到的最极端的情况只是 @${a = n-1} ，此时需要去先计算 @${a^2 = (n-1)^2} ，再去模以 @${n} ，然后就又比 @${n} 小了。 @${(n-1)^2} 是计算时能遇到的最大的数了。而修改后的 @racket[expmod] ，计算 @racket[(expmod a b n)] 时，会先把 @${a^b} 算出来，这期间所有的 @${a, \, a^2, \, a^3, \, \ldots, \, a^b} 全都有可能遇到。这些数往往几乎都非常非常大，它们哪怕是参与一个乘法计算都极为耗时。

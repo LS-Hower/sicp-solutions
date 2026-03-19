@@ -1,4 +1,6 @@
-#lang scheme
+#lang racket
+
+(require math/base)
 
 ; -------- 1.1.4 --------
 
@@ -36,6 +38,28 @@
 
 (define (prime? n)
   (= n (smallest-divisor n)))
+
+(define (expmod base exp m)
+  (cond ((= exp 0) 1)
+        ((even? exp)
+         (remainder
+          (square (expmod base (/ exp 2) m))
+          m))
+        (else
+         (remainder
+          (* base (expmod base (- exp 1) m))
+          m))))
+
+; racket/base 中的 random 过程有限制，参数不能大于 4294967087。这里使用 math-lib 包中的 random-natural 过程。
+(define (fermat-test n)
+  (define (try-it a)
+    (= (expmod a n n) a))
+  (try-it (+ 1 (random-natural (- n 1)))))
+
+(define (fast-prime? n times)
+  (cond ((= times 0) true)
+        ((fermat-test n) (fast-prime? n (- times 1)))
+        (else false)))
 
 ; -------- exercise 1.22 --------
 
