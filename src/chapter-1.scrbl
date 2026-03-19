@@ -856,3 +856,124 @@ TODO
 
 对 @racket[remainder] 共计求值 4 次。
 
+@; ----------------------------------------------------------------------
+
+@section{练习 1.21}
+
+依旧交给计算机处理：
+
+@ss-interaction[(smallest-divisor 199) (smallest-divisor 1999) (smallest-divisor 19999)]
+
+事实上，199 和 1999 都是质数，而 19999 的质因数分解为 7 × 2857 。
+
+@; ----------------------------------------------------------------------
+
+@section[#:tag "exercise 1.22"]{练习 1.22}
+
+注：Racket 没有 @racket[runtime] 过程，但有 @racket[current-process-milliseconds] 和 @racket[current-inexact-milliseconds] 等过程，测量单位是毫秒，但测量的是 UNIX 时间（从 1970 年 1 月 1 日 00:00:00 开始的毫秒数）。由于下方的程序只使用了 @racket[runtime] 返回结果之间的差值，所以直接用 @racket[current-process-milliseconds] 来实现 @racket[runtime] 也可以，但这种做法不能用在所有场合。
+
+代码如下：
+
+@racketblock[
+(define (search-for-primes n)
+  (define (iter needed n)
+    (cond [(= needed 0)
+            (newline)
+            (display "done.")]
+          [(even? n)
+            (iter needed (+ n 1))]
+          [(prime? n)
+            (timed-prime-test n)
+            (iter (- needed 1) (+ n 1))]
+          [else
+            (iter needed (+ n 1))]))
+  (iter 3 n))
+]
+
+由于这本书编写于 30 年前（1996 年修订为第 2 版，而我打出这段话时是 2026 年 3 月 19 日），当时和现在的计算机算力、解释器实现技术不可同日而语，所以用来测试的数据量级也要提高才能看出效果。另外还有一点很重要，就是我们这里测量的是毫秒而不是微秒。用 10,000,000,000,000,000 以及它的 10 倍、100 倍来测试。
+
+在我的电脑上运行测试，某次运行结果如下：
+
+@verbatim{
+10000000000000061 *** 266
+10000000000000069 *** 265
+10000000000000079 *** 250
+done.
+100000000000000003 *** 813
+100000000000000013 *** 812
+100000000000000019 *** 812
+done.
+1000000000000000003 *** 2578
+1000000000000000009 *** 2594
+1000000000000000031 *** 2593
+done.
+}
+
+三次调用产生三组测量值，每组取平均数得到 @${260.33, \, 812.33, \, 2588.33} ，后项比前项分别得到 @${3.12, \, 3.18} 。而 @${\sqrt{10} \approx 3.16} ，测量结果符合预期。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 1.23}
+
+为了不重名，把很多过程都重新写了一遍：
+
+@racketblock[
+(define (next test-divisor)
+  (if (= test-divisor 2)
+      3
+      (+ test-divisor 2)))
+
+(define (smallest-divisor-halved n)
+  (find-divisor-halved n 2))
+
+(define (find-divisor-halved n test-divisor)
+  (cond ((> (square test-divisor) n) n)
+        ((divides? test-divisor n) test-divisor)
+        (else (find-divisor-halved n (next test-divisor)))))
+
+(define (halved-prime? n)
+  (= n (smallest-divisor-halved n)))
+
+(define (timed-prime-test-halved n)
+  (newline)
+  (display n)
+  (start-prime-test-halved n (runtime)))
+
+(define (start-prime-test-halved n start-time)
+  (if (halved-prime? n)
+      (report-prime (- (runtime) start-time))
+      'placeholder))
+
+(define (search-for-primes-halved n)
+  (define (iter needed n)
+    (cond [(= needed 0)
+            (newline)
+            (display "done.")]
+          [(even? n)
+            (iter needed (+ n 1))]
+          [(halved-prime? n)
+            (timed-prime-test-halved n)
+            (iter (- needed 1) (+ n 1))]
+          [else
+            (iter needed (+ n 1))]))
+  (iter 3 n))
+]
+
+这次测量和 @secref["exercise 1.22"] 中的测量发生于同一次 @tt{racket} 进程的运行中。结果如下：
+
+@verbatim{
+10000000000000061 *** 140
+10000000000000069 *** 125
+10000000000000079 *** 140
+done.
+100000000000000003 *** 438
+100000000000000013 *** 454
+100000000000000019 *** 438
+done.
+1000000000000000003 *** 1375
+1000000000000000009 *** 1391
+1000000000000000031 *** 1406
+done.
+}
+
+三个平均值分别为 @${135.00, \, 443.33, \, 1390.67} 。拿它们分别去除 @secref["exercise 1.22"] 中对应的测量值 @${260.33, \, 812.33, \, 2588.33} ，分别得到 @${1.93, \, 1.83, \, 1.86} 。这些比率比较接近但略小于 2。理论上，在 @racket[(start-prime-test-halved n (runtime))] 和 @racket[(report-prime (- (runtime) start-time))] 中两次 @racket[(runtime)] 的求值之间出现了除 @racket[prime?] （或 @racket[halved-prime?] ）以外的少量操作，以及调用 @racket[next] 过程并对 @tt{if} 特殊形式求值可能也比单纯的 @racket[(+ test-divisor 1)] 慢一点点，但更重要的因素可能仍然只是普通的测量误差罢了。
