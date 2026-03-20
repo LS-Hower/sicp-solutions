@@ -1043,3 +1043,43 @@ done.
 这样改会严重拖慢程序。
 
 正文中已经说过，我们的 @racket[expmod] 过程的一个优点就在于，计算过程中从来不需要对比 @racket[n] 大很多的数进行操作。具体地，在计算 @racket[(expmod a b n)] 时，可能遇到的最极端的情况只是 @${a = n-1} ，此时需要去先计算 @${a^2 = (n-1)^2} ，再去模以 @${n} ，然后就又比 @${n} 小了。 @${(n-1)^2} 是计算时能遇到的最大的数了。而修改后的 @racket[expmod] ，计算 @racket[(expmod a b n)] 时，会先把 @${a^b} 算出来，这期间所有的 @${a, \, a^2, \, a^3, \, \ldots, \, a^b} 全都有可能遇到。这些数往往几乎都非常非常大，它们哪怕是参与一个乘法计算都极为耗时。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 1.26}
+
+没有使用 @racket[square] 的版本，进行的过程调用次数是随 @racket[exp] 参数线性增长的。我们设 @racket[exp] 参数为 @${n} 时过程次数为 @${f(n)} ，由代码可以直接看出：
+
+@$${
+  f(n) =
+  \begin{cases}
+    1,  & \text{if } n = 0  \\
+    1 + 2f \left( \dfrac{n}{2} \right),  & \text{if } n > 0 \text{ and } n \text{ is even} \\
+    1 + f(n-1),  & \text{if } n > 0 \text{ and } n \text{ is odd}
+  \end{cases}
+}
+
+我们也用 Scheme 计算一下，看一下前几项：
+
+@ss-interaction[
+(define (call-times n)
+  (cond [(= n 0) 1]
+        [(even? n)
+         (+ 1 (* 2 (call-times (/ n 2))))]
+        [else
+         (+ 1 (call-times (- n 1)))]))
+(map call-times (list 0 1 2 3 4 5 6 7 8 9 10))
+]
+
+该数列在 OEIS 上是 @hyperlink["https://oeis.org/A206332"]{A206332} （没有首项 1）。
+
+可以用反证法证明 @${n \le f(n) \le 3n} 。事实上，有通项公式 @${f(n) = n + 2^{1 + \lfloor log_2(n) \rfloor} - 1} 及结论 @${2n \le f(n) \le 3n} ，因此该过程是 @${\Theta(n)} 的。
+
+这里展示一下 @${n \le f(n)} 的证明：
+
+首先，当 @${n < 2} 时，可以直接计算验证该结论。当 @${n \ge 2} 时，假设存在一些 @${n} 使得 @${f(n) < n} ，设 @${k} 是其中最小的那个。则：
+
+@itemlist[@item{@${k} 不能是奇数，否则由 @${f} 的定义，有 @${1 + f(k-1) < k} ，即 @${f(k-1) < k-1} ，有 @${k-1} 比 @${k} 更小却也满足要求，矛盾；}
+          @item{@${k} 也不能是偶数，否则由 @${f} 的定义，有 @${1 + 2f\left( \dfrac{k}{2} \right) < k} ，可得 @${f\left( \dfrac{k}{2} \right) < \dfrac{k-1}{2} < \dfrac{k}{2}} ，有 @${\dfrac{k}{2}} 比 @${k} 小却也满足要求，矛盾。}]
+
+这样的 @${k} 不可能存在。因此， @${f(n) \ge n} 对于所有 @${n \ge 0} 都成立。
