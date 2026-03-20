@@ -6,9 +6,8 @@
 
 @; ----------------------------------------------------------------------
 
-@(require scribble/manual
-          scribble-math
-          "interaction.ss")
+@(require scribble-math
+          "interaction.rkt")
 
 @; ----------------------------------------------------------------------
 

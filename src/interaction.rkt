@@ -2,7 +2,7 @@
 (require scribble/eval)
 
 (define ss-eval (make-base-eval))
-(void (interaction-eval #:eval ss-eval (require racket/list "sicp-text.ss")))
+(void (interaction-eval #:eval ss-eval (require racket/list "sicp-text.rkt")))
 
 (define-syntax-rule (ss-interaction e ...)
   (interaction #:eval ss-eval e ...))
