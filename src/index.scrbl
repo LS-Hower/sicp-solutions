@@ -14,7 +14,7 @@
 
 @; ----------------------------------------------------------------------
 
-更新日期：2026-03-20
+更新日期：2026-03-21
 
 SICP，全名为《计算机程序的构造和解释》（@italic{Structure and Interpretation of Computer Programs}），作者为 Harold Abelson、Gerald Jay Sussman 和 Julie Sussman。
 
@@ -26,6 +26,8 @@ SICP，全名为《计算机程序的构造和解释》（@italic{Structure and 
 
 @itemlist[@item{Racket 文档工具 @hyperlink["https://docs.racket-lang.org/scribble/"]{Scribble} ，用于生成网页，便于浏览。}
           @item{Racket 包 @hyperlink["https://docs.racket-lang.org/scribble-math/index.html"]{@tt{scribble-math}} ，用于在代码中写出数学公式。}]
+
+原书中的练习题只有形如“x.y”的编号，没有名称。名称是我自行添加的。
 
 @; ----------------------------------------------------------------------
 
