@@ -1082,3 +1082,72 @@ done.
           @item{@${k} 也不能是偶数，否则由 @${f} 的定义，有 @${1 + 2f\left( \dfrac{k}{2} \right) < k} ，可得 @${f\left( \dfrac{k}{2} \right) < \dfrac{k-1}{2} < \dfrac{k}{2}} ，有 @${\dfrac{k}{2}} 比 @${k} 小却也满足要求，矛盾。}]
 
 这样的 @${k} 不可能存在。因此， @${f(n) \ge n} 对于所有 @${n \ge 0} 都成立。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 1.27}
+
+设计了一个过程 @racket[(fermat-test-all n)] ，在 @racket[n] 满足费马小定理那个式子时返回 @racket[true] ，否则返回 @racket[false] 。预计这个过程对于素数和 Carmichael 数会给出 @racket[true] ，对于其他合数会给出 @racket[false] 。
+
+@ss-interaction[
+(define (fermat-test-all n)
+  (define (iter a)
+    (cond [(= a n)
+           true]
+          [(= (expmod a n n) a)
+           (iter (+ a 1))]
+          [else
+           false]))
+  (iter 0))
+(map fermat-test-all (list 561 1105 1729 2465 2821 6601))
+(map fermat-test-all (list 2 3 5 7 11 13))
+(map fermat-test-all (list 4 6 8 9 10 12))
+]
+
+@; ----------------------------------------------------------------------
+
+@section{练习 1.28}
+
+@bold{注意：Racket 自带的 @racket[random] 过程有限制，参数不能大于 4294967087。这里使用 Racket 数学库中的 的 @racket[random-natural] 过程，功能相同，但没有这个限制。}
+
+@ss-interaction[
+(define (expmod-altered base exp m)
+  (cond [(= exp 0) 1]
+        [(even? exp)
+         (define root (expmod base (/ exp 2) m))
+         (define result (remainder (square root) m))
+         (if (and (= result 1)
+                  (not (= root 1))
+                  (not (= root (- m 1))))
+             0
+             result)]
+        [else
+         (remainder
+          (* base (expmod base (- exp 1) m))
+          m)]))
+
+(define (miller-rabin-test n)
+  (define (try-it a)
+    (= (expmod-altered a (- n 1) n) 1))
+  (try-it (+ 1 (random-natural (- n 1)))))
+
+(define (miller-rabin-prime? n times)
+  (cond [(= times 0) true]
+        [(miller-rabin-test n) (miller-rabin-prime? n (- times 1))]
+        [else false]))
+]
+
+这里采纳了书中的建议，发出失败信号的方式是返回 @racket[0] 。这样一来， @racket[expmod-altered] 过程一旦发现了 1 的非平凡平方根，最终结果就一定是 @racket[0] ，绝不会和 @racket[1] 相等，因此最终能够返回 @racket[false] 。
+
+做一些测试：
+
+@ss-interaction[
+(define (miller-rabin-prime-50? n)
+  (miller-rabin-prime? n 50))
+
+(map miller-rabin-prime-50? (list 561 1105 1729 2465 2821 6601))
+(map miller-rabin-prime-50? (list 2 3 5 7 11 13))
+(map miller-rabin-prime-50? (list 4 6 8 9 10 12))
+]
+
+这个 @racket[(miller-rabin-prime? n 50)] 就几乎不可能会误把合数（包括 Carmichael 数）认成素数了。对于一个数测试 50 轮，它将合数错认成素数的概率已经低于 @${\dfrac{1}{2^{50}}} ，比走在路上被陨石砸中的概率还要低得多。
