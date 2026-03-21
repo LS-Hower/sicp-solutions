@@ -15,6 +15,14 @@
 (define (improve guess x)
   (average guess (/ x guess)))
 
+; -------- exercise 1.9 --------
+
+(define (inc x)
+  (+ x 1))
+
+(define (dec x)
+  (- x 1))
+
 ; -------- exercise 1.17 --------
 
 (define (double x)
@@ -79,6 +87,21 @@
 (define (report-prime elapsed-time)
   (display " *** ")
   (display elapsed-time))
+
+; -------- 1.3 --------
+
+(define (cube x)
+  (* x x x))
+
+; -------- 1.3.1 --------
+
+(define (sum term a next b)
+  (if (> a b)
+      0
+      (+ (term a)
+         (sum term (next a) next b))))
+
+(define (identity x) x)  ; racket/function 中也有 identity 过程。
 
 ; -------- end --------
 

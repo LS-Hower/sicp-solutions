@@ -32,6 +32,7 @@ SICP，全名为《计算机程序的构造和解释》，英文名为 @italic{S
     @itemlist[
       @item{@hyperlink["./chapter-1-1.html"]{1.1 程序设计的基本元素} （练习 1.1 ~ 1.8）}
       @item{@hyperlink["./chapter-1-2.html"]{1.2 过程及其产生的计算} （练习 1.9 ~ 1.28）}
+      @item{@hyperlink["./chapter-1-3.html"]{1.3 用高阶函数做抽象}（练习 1.29 ~ 1.46）}
     ]
   }
   @item{（其余部分正在编写中）}
