@@ -4,9 +4,13 @@
 
 在线阅读：[https://ls-hower.github.io/sicp-solutions/](https://ls-hower.github.io/sicp-solutions/)
 
-## 生成
+## 依赖
 
-需要 Racket 工具链，其中包含 Scribble。
+Racket 工具链（其中包含 Scribble）。
+
+Racket 包 [`scribble-math`](https://docs.racket-lang.org/scribble-math/index.html) 。
+
+## 生成
 
 `src` 目录下是源文件，使用 `scribble` 编译成 HTML 文件及相关资源，它们位于 `docs` 目录下。
 

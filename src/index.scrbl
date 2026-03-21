@@ -6,26 +6,17 @@
 
 @; ----------------------------------------------------------------------
 
-@(require scribble-math)
+更新日期：2026-03-22
 
 @; ----------------------------------------------------------------------
 
-@(use-mathjax)
+@section{说明}
 
-@; ----------------------------------------------------------------------
-
-更新日期：2026-03-21
-
-SICP，全名为《计算机程序的构造和解释》（@italic{Structure and Interpretation of Computer Programs}），作者为 Harold Abelson、Gerald Jay Sussman 和 Julie Sussman。
+SICP，全名为《计算机程序的构造和解释》，英文名为 @italic{Structure and Interpretation of Computer Programs} ，作者为 Harold Abelson、Gerald Jay Sussman 和 Julie Sussman。
 
 这里使用本书第二版。
 
-书中使用 @hyperlink["https://www.scheme.org/"]{Scheme 编程语言} 。本项目使用 @hyperlink["https://racket-lang.org/"]{Racket 编程语言} 。后者是前者的超集。
-
-本项目使用了：
-
-@itemlist[@item{Racket 文档工具 @hyperlink["https://docs.racket-lang.org/scribble/"]{Scribble} ，用于生成网页，便于浏览。}
-          @item{Racket 包 @hyperlink["https://docs.racket-lang.org/scribble-math/index.html"]{@tt{scribble-math}} ，用于在代码中写出数学公式。}]
+书中使用 @hyperlink["https://www.scheme.org/"]{Scheme 编程语言} 。本项目使用 @hyperlink["https://racket-lang.org/"]{Racket 编程语言} 及其文档工具 @hyperlink["https://docs.racket-lang.org/scribble/"]{Scribble} 写成。Racket 是 Scheme 的超集。
 
 原书中的练习题只有形如“x.y”的编号，没有名称。名称是我自行添加的。
 
@@ -33,14 +24,17 @@ SICP，全名为《计算机程序的构造和解释》（@italic{Structure and 
 
 @section{目录}
 
-@itemlist[@item{@hyperlink["./chapter-1.html"]{第 1 章 构造过程抽象}}
-          @item{@hyperlink["./resources.html"]{学习资源}}
-          @item{@hyperlink["./additional-lisp.html"]{补充的 Lisp 知识}}]
-
-@; ----------------------------------------------------------------------
-
-@section{其他链接}
-
-@hyperlink["https://github.com/LS-Hower/sicp-solutions"]{本项目 GitHub 仓库}
-
-@hyperlink["https://ls-hower.github.io/index.html"]{LS_Hower 的个人主页（本页面的父页面）}
+@itemlist[
+  @item{@hyperlink["./resources.html"]{学习资源}}
+  @item{@hyperlink["./additional-lisp.html"]{补充的 Lisp 知识}}
+  @item{
+    第 1 章 构造过程抽象
+    @itemlist[
+      @item{@hyperlink["./chapter-1-1.html"]{1.1 程序设计的基本元素} （练习 1.1 ~ 1.8）}
+      @item{@hyperlink["./chapter-1-2.html"]{1.2 过程及其产生的计算} （练习 1.9 ~ 1.28）}
+    ]
+  }
+  @item{（其余部分正在编写中）}
+  @item{@hyperlink["https://github.com/LS-Hower/sicp-solutions"]{（外部）本项目 GitHub 仓库}}
+  @item{@hyperlink["https://ls-hower.github.io/index.html"]{（外部）LS_Hower 的个人主页（本页面的父页面）}}
+]
