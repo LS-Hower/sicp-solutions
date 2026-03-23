@@ -1,4 +1,6 @@
 - 持续更新
 - 练习 1.11 前出现的“挑战”
 - 学习使用库在 Scribble 中画图，完成练习 1.14
+- 自动生成形如 "exercise x.y" 的 tag
+- 设计 `oeis-sequence` 过程： `@oeis-sequence["A001783"]`
 - 源文档内留下的 TODO
