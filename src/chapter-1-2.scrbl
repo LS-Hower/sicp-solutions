@@ -122,19 +122,19 @@
 上一部分的计算过程中已经讲出了这些结论，在这里汇总一下：
 
 @$${
-\begin{align}
-  \texttt{(f n)} = \texttt{(A 0 n)} &= 2n    \\
-  \texttt{(g n)} = \texttt{(A 1 n)} &=
-    \begin{cases}
-      0, & \text{if } n = 0 \\
-      2^n, & \text{if } n > 0
-    \end{cases}             \\
-  \texttt{(h n)} = \texttt{(A 2 n)} &=
-    \begin{cases}
-      0, & \text{if } n = 0 \\
-      \underbrace{2^{2^{\cdot^{\cdot^{2}}}}}_n, & \text{if } n > 0
-    \end{cases}
-\end{align}
+  \begin{align}
+    \texttt{(f n)} = \texttt{(A 0 n)} &= 2n    \\
+    \texttt{(g n)} = \texttt{(A 1 n)} &=
+      \begin{cases}
+        0, & \text{if } n = 0 \\
+        2^n, & \text{if } n > 0
+      \end{cases}             \\
+    \texttt{(h n)} = \texttt{(A 2 n)} &=
+      \begin{cases}
+        0, & \text{if } n = 0 \\
+        \underbrace{2^{2^{\cdot^{\cdot^{2}}}}}_n, & \text{if } n > 0
+      \end{cases}
+  \end{align}
 }
 
 也用解释器验证一下：
@@ -167,29 +167,29 @@
 现在我们可以用超运算的记法重写一下刚刚的结论了：
 
 @$${
-\begin{align}
-  \texttt{(A 0 n)} &= 2[2]n \\
-  \texttt{(A 1 n)} &=
-    \begin{cases}
-      0, & \text{if } n = 0 \\
-      2[3]n, & \text{if } n > 0
-    \end{cases}             \\
-  \texttt{(A 2 n)} &=
-    \begin{cases}
-      0, & \text{if } n = 0 \\
-      2[4]n, & \text{if } n > 0
-    \end{cases}
-\end{align}
+  \begin{align}
+    \texttt{(A 0 n)} &= 2[2]n \\
+    \texttt{(A 1 n)} &=
+      \begin{cases}
+        0, & \text{if } n = 0 \\
+        2[3]n, & \text{if } n > 0
+      \end{cases}             \\
+    \texttt{(A 2 n)} &=
+      \begin{cases}
+        0, & \text{if } n = 0 \\
+        2[4]n, & \text{if } n > 0
+      \end{cases}
+  \end{align}
 }
 
 可以发现明显的规律性。事实上，可以证明， @racket[(A x y)] 可以表示如下：
 
 @$${
-\texttt{(A x y)} =
-  \begin{cases}
-    0,  & \text{if } y = 0 \\
-    2[x+2]y, & \text{if } y > 0
-  \end{cases}
+  \texttt{(A x y)} =
+    \begin{cases}
+      0,  & \text{if } y = 0 \\
+      2[x+2]y, & \text{if } y > 0
+    \end{cases}
 }
 
 画出 @racket[(A x y)] 的表格：
