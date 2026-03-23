@@ -79,9 +79,9 @@
 
 @section[#:tag "exercise 1.31"]{练习 1.31 | @racket[product] 过程}
 
-分为 a 和 b 两小题。
+分为 (a) (b) 两小题。
 
-@subsection{1.31 的 a 小题}
+@subsection{小题 1.31 (a)}
 
 依旧如法炮制，模仿正文里的 @racket[sum] ，但是把加法 @racket[+] 改成乘法 @racket[*] ，并且把 @racket[0] 改成 @racket[1] 。因为 0 是加法的单位元，而 1 是乘法的单位元。任何数加 0 都等于它本身，任何数乘 1 都等于它本身。
 
@@ -100,7 +100,7 @@
   \prod_{x=a}^{b} f(x) = f(a) + f(a+1) + \cdots + f(b)
 }
 
-@subsection{1.31 的 b 小题}
+@subsection{小题 1.31 (b)}
 
 上面那个版本产生递归计算过程，下面写一个产生迭代计算过程的版本。模仿 @secref["exercise 1.30"] 的做法，我们可以写出代码。
 
@@ -120,9 +120,9 @@
 
 @section[#:tag "exercise 1.32"]{练习 1.32 | @racket[sum] 与 @racket[product] 的统一（是累积操作，不是取对数）}
 
-分为 a 和 b 两小题。
+分为 (a) (b) 两小题。
 
-@subsection{1.32 的 a 小题}
+@subsection{小题 1.32 (a)}
 
 刚才把 @racket[sum] 改成 @racket[product] 只需要把 @racket[+] 改成 @racket[*] 以及把 @racket[0] 改成 @racket[1] 就已经初见端倪了，这里潜在地有一个更加一般的抽象。我们将 @racket[+] 改成 @racket[combiner] ，将 @racket[0] 改成 @racket[null-value] ，就可以得到这个更通用的 @racket[accumulate] 函数。
 
@@ -138,7 +138,7 @@
 
 “所有的项都用完时的基本值” @racket[null-value] 对应着 @secref["exercise 1.31"] 中所提到的单位元。然而，用户传入的 @racket[null-value] 不一定非得是 @racket[combiner] 运算的单位元（这个 @racket[combiner] 运算也完全可以不满足交换律、结合律，也可以不需要有单位元）。
 
-@subsection{1.32 的 b 小题}
+@subsection{小题 1.32 (b)}
 
 刚才的版本产生递归计算过程，现在写一个产生迭代过程的版本。
 
@@ -179,9 +179,9 @@
 
 上述代码在 @racket[iter] 过程的内部定义了 @racket[handle] 过程，避免了对 @racket[(term i)] 的重复求值。稍后章节会介绍 @tt{lambda} 和 @tt{let} ，方便我们更清晰地表达这样的意图。
 
-利用这个 @racket[filtered-accumulate] 过程，我们可以做出 a 和 b 两小题。
+利用这个 @racket[filtered-accumulate] 过程，我们可以做出 (a) (b) 两小题。
 
-@subsection{1.33 的 a 小题}
+@subsection{小题 1.33 (a)}
 
 @ss-interaction[
 (define (prime-sum-between a b)
@@ -190,7 +190,7 @@
 (+ 5 7 11 13)
 ]
 
-@subsection{1.33 的 b 小题}
+@subsection{小题 1.33 (b)}
 
 @racket[coprime?] 过程判断两数是否互素。
 

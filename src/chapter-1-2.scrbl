@@ -382,9 +382,9 @@ TODO
 
 @section{练习 1.15 | 三倍角公式算正弦函数}
 
-分为 a 和 b 两小题。
+分为 (a) (b) 两小题。
 
-@subsection{1.15 的 a 小题}
+@subsection{小题 1.15 (a)}
 
 @itemlist[
   #:style 'ordered
@@ -398,11 +398,11 @@ TODO
 
 因此一共调用 @racket[p] 过程 5 次。
 
-@subsection{1.15 的 b 小题}
+@subsection{小题 1.15 (b)}
 
 可以采用解递归式的方式来计算，但这里我们直接精确算出过程调用的次数。
 
-从 a 小题中可以看出，在计算 @racket[(sine a)] 时，调用 @racket[p] 过程的次数，就等于在如下数列中大于 @${0.1} 的项的总个数：
+从 (a) 小题中可以看出，在计算 @racket[(sine a)] 时，调用 @racket[p] 过程的次数，就等于在如下数列中大于 @${0.1} 的项的总个数：
 
 @$${
   |a|, \dfrac{|a|}{3}, \dfrac{|a|}{3^2}, \dfrac{|a|}{3^3}, \ldots
