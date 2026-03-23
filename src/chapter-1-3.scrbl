@@ -108,10 +108,10 @@
 
 @ss-interaction[
 (define (product term a next b)
-  (define (iter a result)
-    (if (> a b)
+  (define (iter i result)
+    (if (> i b)
         result
-        (iter (next a) (* result (term a)))))
+        (iter (next i) (* result (term i)))))
   (iter a 1))
 (product identity 1 inc 6)
 ]
@@ -132,11 +132,11 @@
       null-value
       (combiner (term a)
                 (accumulate combiner null-value term (next a) next b))))
-(accumulate + 0 identity 1 inc 6)
+(accumulate + 0 identity 1 inc 100)
 (accumulate * 1 identity 1 inc 6)
 ]
 
-“所有的项都用完时的基本值” @racket[null-value] 对应着 @secref["exercise 1.31"] 中所提到的单位元。
+“所有的项都用完时的基本值” @racket[null-value] 对应着 @secref["exercise 1.31"] 中所提到的单位元。然而，用户传入的 @racket[null-value] 不一定非得是 @racket[combiner] 运算的单位元（这个 @racket[combiner] 运算也完全可以不满足交换律、结合律，也可以不需要有单位元）。
 
 @subsection{1.32 的 b 小题}
 
@@ -144,10 +144,10 @@
 
 @ss-interaction[
 (define (accumulate combiner null-value term a next b)
-  (define (iter a result)
-    (if (> a b)
+  (define (iter i result)
+    (if (> i b)
         result
-        (iter (next a) (combiner result (term a)))))
+        (iter (next i) (combiner result (term i)))))
   (iter a null-value))
 (accumulate + 0 identity 1 inc 6)
 (accumulate * 1 identity 1 inc 6)
