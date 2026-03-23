@@ -154,3 +154,57 @@
 ]
 
 不变量已经在 @secref["exercise 1.30"] 和 @secref["exercise 1.31"] 分别写过一次了，现在再写一次不变量。每次调用 @racket[(iter i result)] 时，都满足： @racket[result] 与 @racket[(accumulate combiner null-value term i next b)] 作为参数调用 @racket[combiner] 所得到的结果不变，且等于要计算出的最终结果。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 1.33 | @racket[filtered-accumulate] 过程}
+
+多加一个 @tt{if} 判断：如果 @racket[(term i)] 满足 @racket[take?] 谓词，则进行 @racket[combiner] 运算算出新的 @racket[result] 并在下一次调用 @racket[iter] 时将原本的 @racket[result] 替换掉，否则不替换。
+
+注意：书中说的是“只组合起由给定范围所得到的项里的那些满足特定条件的项”，而不是“只组合起由给定范围里的那些满足特定条件的部分所得到的项”。说白了，就是谓词要取的参数是 @racket[(term i)] ，而不是 @racket[i] 。
+
+@ss-interaction[
+(define (filtered-accumulate take? combiner null-value term a next b)
+  (define (iter i result)
+    (define (handle term-of-i)
+      (if (> i b)
+          result
+          (iter (next i)
+                (if (take? term-of-i)
+                    (combiner result term-of-i)
+                    result))))
+    (handle (term i)))
+  (iter a null-value))
+]
+
+上述代码在 @racket[iter] 过程的内部定义了 @racket[handle] 过程，避免了对 @racket[(term i)] 的重复求值。稍后章节会介绍 @tt{lambda} 和 @tt{let} ，方便我们更清晰地表达这样的意图。
+
+利用这个 @racket[filtered-accumulate] 过程，我们可以做出 a 和 b 两小题。
+
+@subsection{1.33 的 a 小题}
+
+@ss-interaction[
+(define (prime-sum-between a b)
+  (filtered-accumulate prime? + 0 identity a inc b))
+(prime-sum-between 5 13)
+(+ 5 7 11 13)
+]
+
+@subsection{1.33 的 b 小题}
+
+@racket[coprime?] 过程判断两数是否互素。
+
+@ss-interaction[
+(define (coprime? a b)
+  (= 1 (gcd a b)))
+
+(define (coprime-product n)
+  (define (coprime-to-n? i)
+    (coprime? i n))
+  (filtered-accumulate coprime-to-n? * 1 identity 1 inc n))
+
+(coprime-product 8)
+(* 1 3 5 7)
+]
+
+@racket[coprime-product] 过程所计算的函数有一个专门的名字：“phi-torial”。OEIS 也收录了这一数列： @hyperlink["https://oeis.org/A001783"]{A001783} 。
