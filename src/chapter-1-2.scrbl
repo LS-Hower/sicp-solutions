@@ -937,13 +937,15 @@ done.
 (define (expmod-altered base exp m)
   (cond [(= exp 0) 1]
         [(even? exp)
-         (define root (expmod base (/ exp 2) m))
-         (define result (remainder (square root) m))
-         (if (and (= result 1)
-                  (not (= root 1))
-                  (not (= root (- m 1))))
-             0
-             result)]
+         (define (handle-root root)
+           (define (handle-modded-square result)
+             (if (and (= result 1)
+                      (not (= root 1))
+                      (not (= root (- m 1))))
+                 0
+                 result))
+           (handle-modded-square (remainder (square root) m)))
+         (handle-root (expmod base (/ exp 2) m))]
         [else
          (remainder
           (* base (expmod base (- exp 1) m))
