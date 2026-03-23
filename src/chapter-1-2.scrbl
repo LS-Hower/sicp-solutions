@@ -384,7 +384,7 @@ TODO
 
 分为 a 和 b 两小题。
 
-@subsection{a 小题}
+@subsection{1.15 的 a 小题}
 
 @itemlist[
   #:style 'ordered
@@ -398,7 +398,7 @@ TODO
 
 因此一共调用 @racket[p] 过程 5 次。
 
-@subsection{b 小题}
+@subsection{1.15 的 b 小题}
 
 可以采用解递归式的方式来计算，但这里我们直接精确算出过程调用的次数。
 
