@@ -22,24 +22,42 @@
 @section{练习 1.29 | 辛普森积分法}
 
 @ss-interaction[
-
 (define (simpson-integral f a b n)
+  (define (coefficient k)
+    (cond [(or (= k 0) (= k n)) 1]
+          [(even? k) 2]
+          [else 4]))
   (define (calculate h)
     (define (y k)
       (f (+ a (* k h))))
-    (define (add-2 x)
-      (+ 2 x))
+    (define (y-with-coefficient k)
+      (* (coefficient k) (y k)))
     (* (/ h 3)
-       (+ (y 0)
-          (* 4 (sum y 1 add-2 (- n 1)))
-          (* 2 (sum y 2 add-2 (- n 2)))
-          (y n))))
+       (sum y-with-coefficient 0 inc n)))
   (calculate (/ (- b a) n)))
 (simpson-integral cube 0.0 1.0 100)
 (simpson-integral cube 0.0 1.0 1000)
 ]
 
 与用许多小长方形不同，辛普森积分法使用了二次函数来逼近被积函数，这样可以得到精度更高的积分结果。
+
+可以看到， @racket[n] 等于 @racket[100] 时结果与 @racket[0.25] 的差距，与 @racket[n] 等于 @racket[1000] 时的差距相比，甚至还更小了。可以猜测，这里出现的误差已经主要是由浮点运算本身的舍入误差造成的了，辛普森积分法本身的误差应该已经是次要的了。事实上，辛普森积分法的误差 @${E} 满足：
+
+@$${
+  E \le \dfrac{M \cdot (b-a)^5}{180n^4}
+}
+
+其中 @${M} 是 @${f(x)} 的四阶导函数 @${\dfrac{\mathrm{d}^4f(x)}{\mathrm{d}x^4}} 在区间 @${[a,b]} 上的最大值。而在这里，我们的 @${f(x) = x^3} ，它最高只有 3 次，于是四阶导数直接恒等于 @${0} ，所以辛普森积分法对于 @${f(x) = x^3} 的误差其实理论上等于 @${0} 。所以，哪怕 @racket[n] 等于 2 或者 4，也可以期望它几乎没有误差。
+
+@ss-interaction[
+(simpson-integral cube 0.0 1.0 2)
+(simpson-integral cube 0.0 1.0 4)
+(simpson-integral cube 0.0 1.0 10)
+]
+
+而且，由于要加的项很少，所以舍入误差反而也非常小。
+
+此外，原书脚注 23 中提到 @racket[sqrt-iter] 过程使用 @racket[1.0] 而非 @racket[1] 来启动计算，以迫使解释器进行浮点运算而不是有理数运算。这里也用了 @racket[0.0] 和 @racket[1.0] 启动计算来达到相同的目的。
 
 @; ----------------------------------------------------------------------
 
