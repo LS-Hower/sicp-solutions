@@ -208,3 +208,21 @@
 ]
 
 @racket[coprime-product] 过程所计算的函数有一个专门的名字：“phi-torial”。OEIS 也收录了这一数列： @hyperlink["https://oeis.org/A001783"]{A001783} 。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 1.34 | （伪）欧米伽}
+
+若要求值 @racket[(f f)] ，则要求值 @racket[(f 2)] 。
+
+若要求值 @racket[(f 2)] ，则要求值 @racket[(2 2)] 。
+
+但 @racket[2] 不是一个过程，所以无法求值。
+
+@ss-interaction[
+(define (f g)
+  (g 2))
+(f square)
+(f (lambda (z) (* z (+ z 1))))
+(f f)
+]
