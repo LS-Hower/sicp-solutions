@@ -251,3 +251,46 @@
 ]
 
 非常顺利。 @${\varphi} 的实际值为 @${\dfrac{1 + \sqrt{5}}{2} = 1.6180339887 \ldots} 。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 1.36 | 平均阻尼对收敛速度的影响}
+
+先对 @racket[fixed-point] 做修改，使其能够打印计算中产生的近似值序列：
+
+@ss-interaction[
+(define (fixed-point-with-steps f first-guess)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2))
+       tolerance))
+  (define (try guess)
+    (let ((next (f guess)))
+      (newline)
+      (display next)
+      (if (close-enough? guess next)
+          next
+          (try next))))
+  (newline)
+  (display first-guess)
+  (try first-guess))
+]
+
+这里的技巧是，先打印最初的猜测值，然后每次计算出下一个值时立即打印，就不会有遗漏了。
+
+对 @${x \mapsto \dfrac{\ln 1000}{\ln x}} 做平均阻尼，得到的函数是 @${x \mapsto \dfrac{x + \dfrac{\ln 1000}{\ln x}}{2}} 。
+
+现在用刚编写的 @racket[fixed-point-with-steps] 来计算它们各自的不动点。注意到 @${4^4 = 256} ，而 @${5^5 = 3125} 。所以我们用 @racket[4.5] 作为初始猜测值：
+
+@ss-interaction[
+(fixed-point-with-steps (lambda (x)
+                          (/ (log 1000) (log x)))
+                        4.5)
+(fixed-point-with-steps (lambda (x)
+                          (/ (+ x (/ (log 1000) (log x))) 2))
+                        4.5)
+]
+
+可以看到，经过平均阻尼后，收敛速度明显加快，所需步数变少了。
+
+@; TODO 写过程自动计算所需步数并写在文档里？
+
