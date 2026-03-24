@@ -213,16 +213,17 @@
 
 @section{练习 1.34 | （伪）欧米伽}
 
-若要求值 @racket[(f f)] ，则要求值 @racket[(f 2)] 。
-
-若要求值 @racket[(f 2)] ，则要求值 @racket[(2 2)] 。
-
-但 @racket[2] 不是一个过程，所以无法求值。
-
 @ss-interaction[
 (define (f g)
   (g 2))
 (f square)
 (f (lambda (z) (* z (+ z 1))))
-(f f)
 ]
+
+若要求值 @racket[(f f)] ，则要求值 @racket[(f 2)] 。
+
+若要求值 @racket[(f 2)] ，则要求值 @racket[(2 2)] 。
+
+但 @racket[2] 不是一个过程，所以无法求值。可以查看下方的报错：
+
+@ss-interaction[(f f)]
