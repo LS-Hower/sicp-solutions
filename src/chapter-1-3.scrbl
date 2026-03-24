@@ -97,7 +97,7 @@
 一般地，当 @racket[term] 为 @${f} ， @racket[next] 为 @racket[inc] 时， @racket[product] 计算的是
 
 @$${
-  \prod_{x=a}^{b} f(x) = f(a) + f(a+1) + \cdots + f(b)
+  \prod_{x=a}^{b} f(x) = f(a) \cdot f(a+1) \cdot f(a+2) \cdots f(b-1) \cdot f(b)
 }
 
 @subsection{小题 1.31 (b)}
