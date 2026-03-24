@@ -11,18 +11,22 @@
 
 ## 生成
 
-源文件位于 `src` 目录，编译出的 HTML 及其他资源位于 `docs` 目录。
+目录用途：
 
-可以在项目根目录运行 `make` ：
+- `src/`：源代码。
+- `docs-test`：编译出的 HTML 和其他资源，作为沙盒用于本地测试。加入了 `.gitignore` ，不会被 Git 跟踪。
+- `docs/`：编译出的 HTML 和其他资源，是要发布的页面。
 
-```bash
-make
-```
+在项目根目录运行：
+
+- `make`：编译到 `docs-test` 目录。
+- `make publish`：编译到 `docs` 目录（会先清空它）。
 
 也可以在项目根目录手动运行 `scribble` 命令：
 
 ```bash
 scribble --dest docs ...
+# --dest 后面是输出目录。
 # 将省略号（...）改成要编译的源文件的路径，如 src/index.scrbl。
 # 可以一次编译多个。
 ```

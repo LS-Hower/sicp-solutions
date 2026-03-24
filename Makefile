@@ -1,5 +1,5 @@
 SRC = src
-DST = docs
+DST ?= docs-test
 
 SCRIBBLE = scribble
 FLAGS = --dest $(DST)
@@ -12,3 +12,9 @@ all: $(HTMLS)
 
 $(DST)/%.html: $(SRC)/%.scrbl $(RKT)
 	$(SCRIBBLE) $(FLAGS) $<
+
+clean-docs:
+	rm -rf docs/*
+
+publish: clean-docs
+	$(MAKE) DST=docs
