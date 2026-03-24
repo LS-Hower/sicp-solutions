@@ -227,3 +227,27 @@
 但 @racket[2] 不是一个过程，所以无法求值。可以查看下方的报错：
 
 @ss-interaction[(f f)]
+
+@; ----------------------------------------------------------------------
+
+@section{练习 1.35 | 不动点求 @${\varphi}}
+
+首先证明 @${\varphi} 是函数 @${x \mapsto 1 + \dfrac{1}{x}} 的不动点。将 @${\varphi} 代入，得：
+
+@$${
+  \begin{align*}
+    1 + \dfrac{1}{\varphi} &= 1 + \dfrac{2}{1 + \sqrt{5}}  \\
+                           &= 1 + \dfrac{2 (1 - \sqrt{5})}{(1 + \sqrt{5})(1 - \sqrt{5})}  \\
+                           &= 1 + \dfrac{2 (1 - \sqrt{5})}{-4}  \\
+                           &= \dfrac{1 + \sqrt{5}}{2}  \\
+                           &= \varphi
+  \end{align*}
+}
+
+现在用 @racket[fixed-point] 求 @${\varphi} ：
+
+@ss-interaction[
+(fixed-point (lambda (x) (+ 1 (/ 1 x))) 1.0)
+]
+
+非常顺利。 @${\varphi} 的实际值为 @${\dfrac{1 + \sqrt{5}}{2} = 1.6180339887 \ldots} 。

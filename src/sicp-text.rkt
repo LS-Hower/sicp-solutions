@@ -103,6 +103,21 @@
 
 (define (identity x) x)  ; racket/function 中也有 identity 过程。
 
+; -------- 1.3.3 --------
+
+(define tolerance 0.00001)
+
+(define (fixed-point f first-guess)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2))
+       tolerance))
+  (define (try guess)
+    (let ((next (f guess)))
+      (if (close-enough? guess next)
+          next
+          (try next))))
+  (try first-guess))
+
 ; -------- end --------
 
 (provide (all-defined-out))
