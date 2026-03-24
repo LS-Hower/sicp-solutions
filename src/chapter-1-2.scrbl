@@ -962,6 +962,8 @@ done.
         [else false]))
 ]
 
+（在 @tt{cond} 中，对于 @racket[(even? exp)] 的情况，临时定义了一些过程来避免重复计算，并给计算出的中间量起名字。稍后章节会介绍 @tt{lambda} 和 @tt{let} 特殊形式，方便我们更清晰地表达这样的意图。）
+
 这里采纳了书中的建议，发出失败信号的方式是返回 @racket[0] 。这样一来， @racket[expmod-altered] 过程一旦发现了 1 的非平凡平方根，最终结果就一定是 @racket[0] ，绝不会和 @racket[1] 相等，因此最终能够返回 @racket[false] 。
 
 做一些测试：

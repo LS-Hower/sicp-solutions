@@ -177,7 +177,7 @@
   (iter a null-value))
 ]
 
-上述代码在 @racket[iter] 过程的内部定义了 @racket[handle] 过程，避免了对 @racket[(term i)] 的重复求值。稍后章节会介绍 @tt{lambda} 和 @tt{let} ，方便我们更清晰地表达这样的意图。
+上述代码在 @racket[iter] 过程的内部定义了 @racket[handle] 过程，避免了对 @racket[(term i)] 的重复求值。稍后章节会介绍 @tt{lambda} 和 @tt{let} 特殊形式，方便我们更清晰地表达这样的意图。
 
 利用这个 @racket[filtered-accumulate] 过程，我们可以做出 (a) (b) 两小题。
 
