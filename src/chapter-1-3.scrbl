@@ -524,14 +524,14 @@ r
     (f (f x))))
 ]
 
-TODO: 分析
-
 @itemlist[
   #:style 'ordered
-  @item{}
+  @item{@racket[double] 会使一个过程被应用的次数乘以 2。}
+  @item{@racket[(double double)] 会使一个过程被 @racket[double] 给应用 2 次，也就是说，被应用的次数将乘以 2 共 2 次。也就是说，被应用的次数将乘以 4。}
+  @item{@racket[(double (double double))] 会使一个过程被 @racket[(double double)] 给应用 2 次，也就是说，被应用的次数将乘以 4 共 2 次。也就是说，被应用的次数将乘以 16。}
 ]
 
-所以 @racket[((double (double double)) inc)] 能够将参数增加 @racket[8] 。验证一下书上的例子：
+所以 @racket[((double (double double)) inc)] 能够将参数增加 @racket[16] 。验证一下书上的例子：
 
 @ss-interaction[
 (inc 8)
@@ -601,12 +601,31 @@ TODO: 分析
   \end{cases}
 }
 
-其中 @${\mathrm{id}} 函数就是恒等函数，在 Scheme 里是我们见过的 @racket[identity] 过程，它直接返回原参数不变。
+其中 @${\mathrm{id}} 函数就是恒等函数，在 Scheme 里是我们见过的 @racket[identity] 过程，它直接返回原参数不变。对一个 @${x} 应用 @${0} 次 @${f} 仍然会得到 @${x} ，很合理。
 
 我们可以立即将上述想法翻译成 Scheme 代码：
 
-TODO: 写出代码
+@ss-interaction[
+(define (repeated f n)
+  (cond [(= n 0) identity]
+        [(even? n) (repeated (compose f f) (/ n 2))]
+        [else (compose f (repeated f (- n 1)))]))
+((repeated square 2) 5)
+]
 
-TODO: 快速函数复合是在用对数次步数搭建一个会执行线性次步数的过程
+这样，就可以用 @${\Theta(\log n)} 步把 @${f^{(n)}} 构造出来了。但是，将结果实际应用于一个参数，也就是在求 @${f(f(\cdots f(x) \cdots))} 时，计算所需的步数仍然是 @${\Theta(n)} ，不会加速。所以我们干的事是在用对数次步数搭建一个会执行线性次步数的过程。想想也是，如果对于一切可以计算的函数 @${f} ，我们都可以非常快速地计算 @${f(f(\cdots f(x) \cdots))} ，这也太荒诞了——包括三体问题在内的许多有关混沌的难题都可以随意解决了，那会是一个什么样的世界呢。
+
+言归正传，既然最终要应用于参数时终究总是需要线性次步数，我们可以改变的是求出 @${f^{(n)}} 的所需步数。此时我们回头一看，最开始那个使用内部定义而不使用 @racket[compose] 的方式所需步数正是 @${\Theta(1)} 。而第二个方式——朴素地使用 @racket[compose] ，所需步数则是 @${\Theta(n)} 。
+
+但是话又说回来了，没能加速，是因为 @racket[compose] 函数什么也没有干。如果我们在 @racket[compose] 的过程中真正做到了让步数减少，就又可以加速了。比如说，如果 @${f(x) = kx} 的话，我们可以用一个数值 @${k} 来表示这个函数，而在所谓的“函数组合”过程中，我们做的是让 @${k_1} 和 @${k_2} 相乘，算出一个新的数值来，这就是所谓的把 @${f_1} 和 @${f_2} 组合了。这样，我们可以对数时间算出 @${f^{(n)}} 。由于 @${f^{(n)}(x) = k^n x} ，它是被 @${k^n} 这个数值表示的，也就是说，最后算出来的是 @${k^n} 。等于说，这其实是在变相地用快速幂算法计算 @${k^n} ！
+
+与之类似：
+
+@itemlist[@item{仿射变换 @${f(x) = a x + b} 可以用有序实数对 @${(a, b)} 表示，而 @${(a, b)} 和 @${(c, d)} 的组合其实就是 @${(ac, ad+b)} ，因为若 @${f(x) = a x + b} 且 @${g(x) = c x + d} ，则 @${f(g(x)) = a (c x + d) + b = (ac) x + (ad + b)} ，这还是一个仿射变换，可以用 @${(ac, ad+b)} 表示；}
+          @item{左乘矩阵 @${f(\vec{x}) = M \cdot \vec{x}} （其中 @${M} 是 @${n \times n} 矩阵）可以用矩阵 @${M} 它自己来表示，而函数复合其实就是矩阵乘法；}
+          @item{在刚才的仿射变换中，还可以推广，将 @${a} 和 @${b} 分别视为 @${n \times n} 矩阵和 @${n} 维列向量，进行矩阵和向量的乘法以及向量加法；}
+          @item{练习 1.19 中的 @${T_{p,q}} 变换其实只是刚才左乘矩阵 @${f(\vec{x}) = M \cdot \vec{x}} 的另一种表示方式而已，在这里 @${M} 其实是 @${\begin{bmatrix} p+q & q \\ q & p \end{bmatrix}} 。}]
+
+在第二章，学会组合数据之后，上述的想法都可以轻松实现。
 
 @; TODO: (1.45 题) 数学方法定量分析需要做平均阻尼的次数
