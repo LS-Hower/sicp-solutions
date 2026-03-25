@@ -254,7 +254,7 @@
 
 @; ----------------------------------------------------------------------
 
-@section{练习 1.36 | 平均阻尼对收敛速度的影响}
+@section[#:tag "exercise 1.36"]{练习 1.36 | 平均阻尼对收敛速度的影响}
 
 先对 @racket[fixed-point] 做修改，使其能够打印计算中产生的近似值序列：
 
@@ -294,5 +294,201 @@
 
 在实数范围内，这个解可以用 @${x = e^{W(\ln 1000)}} 来表示，其中 @${W} 是朗伯 W 函数，是 @${x \mapsto xe^x} 的反函数。解的精确值为 @${4.55553570519512802 \ldots} 。
 
+朗伯（J@._ H@._ Lambert）是一名数学家。 @Secref["exercise 1.39"] 中对他有更多讲述。
+
 @; TODO 写过程自动计算所需步数并写在文档里？
 
+@; ----------------------------------------------------------------------
+
+@section[#:tag "exercise 1.37"]{练习 1.37 | 计算 k 项有限连分式}
+
+分为 (a) (b) 两小题。
+
+@subsection{小题 1.37 (a)}
+
+这一小题我们先写产生递归计算过程的版本。一种方式是内部定义：
+
+@ss-interaction[
+(define (cont-frac n d k)
+  (define (cont-frac-from i)
+    (if (> i k)
+        0
+        (/ (n i)
+           (+ (d i)
+              (cont-frac-from (+ i 1))))))
+  (cont-frac-from 1))
+
+(define (phi-of k)
+  (+ 0.0 (cont-frac (lambda (i) 1)
+                    (lambda (i) 1)
+                    k)))
+
+(phi-of 10)
+]
+
+这里 @racket[phi-of] 过程对 @racket[cont-frac] 算出的结果加了一个浮点数 @racket[0.0] 。原因在 @hyperlink["./additional-lisp.html"]{补充的 Lisp 知识} 这一页面中说过，对整数做除法运算得到的是“有理数对象”，要和浮点数做一些运算才能变成浮点数。
+
+另一种方式避免了内部定义，而是直接递归调用自己，途中对 @racket[n] 和 @racket[d] 做了变换：
+
+@ss-interaction[
+(define (cont-frac n d k)
+  (if (= k 0)
+      0
+      (/ (n 1)
+         (+ (d 1)
+            (cont-frac (lambda (i) (n (+ i 1)))
+                       (lambda (i) (d (+ i 1)))
+                       (- k 1))))))
+
+(phi-of 10)
+]
+
+第二种方法可以这样直观理解：
+
+@$${
+  f = \dfrac{N_1}{D_1 + \dfrac{N_2}{D_2 + \dfrac{N_3}{D_3 + \dfrac{N_4}{\ddots + \dfrac{N_K}{D_K}}}}}
+}
+
+可以转化成：
+
+@$${
+  f = \dfrac{N_1}{D_1 + \dfrac{{N'}_1}{{D'}_1 + \dfrac{{N'}_2}{{D'}_2 + \dfrac{{N'}_3}{\ddots + \dfrac{{N'}_{K-1}}{{D'}_{K-1}}}}}}
+}
+
+其中 @${N'} 和 @${D'} 的定义是 @${{N'}_i = N_{i+1}, \, {D'}_i = D_{i+1}} 。第二种方法的代码其实就是直接从这个思想翻译过来的。
+
+现在我们找一下多大的 @racket[k] 能使近似值有 4 位精度。我们熟知 @${\dfrac{1}{\varphi} = 0.6180339887 \ldots} ，因此可以说“有 4 位精度”意味着 @${0.6180 \le f < 0.6181} 。另一种合理判断方式是看 @${\left| f - \dfrac{1}{\varphi} \right| \le 0.00005} 。现在把两种都实现一下。
+
+@ss-interaction[
+(define phi-inv (/ (- (sqrt 5) 1) 2))
+(define (find-smallest-satisfy mapping pred)
+  (define (try i)
+    (if (pred (mapping i))
+        i
+        (try (+ i 1))))
+  (try 0))
+(define k-1
+  (find-smallest-satisfy phi-of
+                         (lambda (f)
+                           (and (<= 0.6180 f)
+                                (< f 0.6181)))))
+(define k-2
+  (find-smallest-satisfy phi-of
+                         (lambda (f)
+                           (<= (abs (- f phi-inv)) 0.00005))))
+k-1
+k-2
+(phi-of k-1)
+(phi-of k-2)
+]
+
+上述寻找最小的 k 的算法并非时间最优的算法。若找出的结果为 @${k} ，则所需步数是 @${\Theta(k^2)} 。有两种改进思路：
+
+@itemlist[
+  #:style 'ordered
+  @item{我们发现 @racket[(find-smallest-satisfy mapping pred)] 是在寻找最小的 @racket[k] 使得 @racket[(pred (mapping k))] 为真。如果对于所有比 @racket[k] 大的数，谓词也都成立（对于第一种判断标准不一定成立，对于第二种则应该是成立的），那么可以用二分查找的方法找到 @racket[k] 。至于开始时的右端点，可以从 @racket[1] 、 @racket[2] 、 @racket[4] 、 @racket[8] ……中逐个猜测直到发现一个使谓词为真的。因为计算 @racket[(cont-frac n d k)] 是需要 @${\Theta(k)} 步的，所以我们还不能直接下定论说步数是 @${\Theta(\log k)} ，需要进一步分析。我们设找到的右端点为 @${2^m} ，那么在试探上界时所消耗的步数是 @${\Theta(1 + 2 + 4 + \cdots + 2^m) = \Theta(2^{m+1}) = \Theta(k)} 。而接下来为了确定具体结果，我们要用区间 @${[2^{m-1}, \, 2^m]} 之间的数调用 @${\Theta(k)} 次谓词。每次调用谓词时都需要 @${\Theta(k)} 步，于是总共需要 @${\Theta(k \log k)} 步。两步加起来，最终需要的步数是 @${\Theta(k \log k)} 。可以看出，谓词的计算拖慢了我们的速度。因此引出下面第二条：}
+  @item{可以使脚注 34 中所提到的记忆技术，用之前算出过的结果来快速计算出 @racket[k] 更大时的结果。虽然一般情况下 @${f_{K-1} = \dfrac{N_1}{D_1 + \dfrac{N_2}{\ddots + \dfrac{N_{K-1}}{D_{K-1}}}}} 的结果并不能用于计算 @${f_K = \dfrac{N_1}{D_1 + \dfrac{N_2}{\ddots + \dfrac{N_K}{D_K}}}} ，但在这里， @${N_i} 和 @${D_i} 都恒等于 @${1} ，所以其实还真可以：有 @${f_K = \dfrac{1}{1 + f_{K-1}}} 。这样就可以用 @${\Theta(K)} 步算出从 @${f_1} 到 @${f_K} 的所有值了，从而我们能够用 @${\Theta(k)} 步找到答案。}
+]
+
+最后，其实如果将 k 项截断得到的结果，从 k=0 开始，全都写出来，会是这样的：
+
+@$${
+\dfrac{0}{1}, \,
+\dfrac{1}{1}, \,
+\dfrac{1}{2}, \,
+\dfrac{2}{3}, \,
+\dfrac{3}{5}, \,
+\dfrac{5}{8}, \,
+\dfrac{8}{13}, \,
+\ldots
+}
+
+分子和分母其实是相错了一位的斐波那契数列。这也印证了一个结论：斐波那契数列后项与前项之比逐渐趋近于 @${\varphi} 。在刚才第二种改进方法中，对结果的记忆，其实是对斐波那契数列的记忆，甚至还重复了一次。
+
+@subsection{小题 1.37 (b)}
+
+迭代计算过程版本：
+
+@ss-interaction[
+(define (cont-frac n d k)
+  (define (iter i acc)
+    (if (= i 0)
+        acc
+        (iter (- i 1)
+              (/ (n i)
+                 (+ (d i) acc)))))
+  (iter k 0))
+(phi-of 15)
+]
+
+与递归计算过程版本不同，这个代码从连分数右下往左上计算。不变量是，每次调用 @racket[(iter i acc)] 时，都有：这个连分式的“ @racket[i] 项截断”，和 @racket[acc] 相加，和是恒定的，且等于要最终计算出的结果。
+
+其实如果理解了这个不变量的思想，这个迭代版其实似乎会比递归版更自然、更容易理解。
+
+这道题也是少数一些我在高中偷偷读 SICP 时就做了的题之一，现在我可以直接把自己曾经写在书上的答案抄到这里（幸好书本还幸存着）。当时还不知道“不变量”这一工具，写出迭代版本就遇到了一点困难。不过，最终写出的代码倒是非常适合用不变量来证明正确性的。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 1.38 | 连分数算 @${\mathrm{e}}}
+
+其实我还偷偷用了 1.2.6 部分的 @racket[divides?] 过程。
+
+@ss-interaction[
+(+ 2.0
+   (cont-frac (lambda (i) 1)
+              (lambda (i)
+                (let ([i+1 (+ i 1)])
+                  (if (divides? 3 i+1)
+                      (* (/ i+1 3) 2)
+                      1)))
+              11))
+]
+
+作为对比，自然对数底的精确值为 @${\mathrm{e} = 2.718281828459 \ldots} 。
+
+@; ----------------------------------------------------------------------
+
+@section[#:tag "exercise 1.39"]{练习 1.39 | 连分数算 @${\tan x}}
+
+虽然乍一看，这个分式中的加号变成了减号，似乎让我们不得不重写 @racket[cont-frac] 过程，但其实我们完全可以做一个变换：
+
+@$${
+  \tan x
+  =
+  \dfrac{x}{1 - \dfrac{x^2}{3 - \dfrac{x^2}{5 - \ddots}}}
+  =
+  \dfrac{x}{1 + \dfrac{-x^2}{3 + \dfrac{-x^2}{5 + \ddots}}}
+}
+
+这样就可以重复利用 @racket[cont-frac] 过程了，而不用傻乎乎地重写一个和 @racket[cont-frac] 几乎一样的新过程，只把加号改成减号。（我是不会讲出自己在高中偷偷读 SICP 的时候一开始真的只想到了这种笨方法这件事的。）
+
+@ss-interaction[
+(define (tan-cf x k)
+  (+ 0.0
+     (cont-frac (lambda (i)
+                  (if (= i 1)
+                      x
+                      (- (square x))))
+                (lambda (i)
+                  (- (* 2 i) 1))
+                k)))
+]
+
+看看用它计算 @${\tan \dfrac{\pi}{4} = 1} 效果如何：
+
+@ss-interaction[
+(tan-cf (/ pi 4) 0)
+(tan-cf (/ pi 4) 1)
+(tan-cf (/ pi 4) 2)
+(tan-cf (/ pi 4) 3)
+(tan-cf (/ pi 4) 4)
+(tan-cf (/ pi 4) 5)
+(tan-cf (/ pi 4) 6)
+(tan-cf (/ pi 4) 7)
+(tan-cf (/ pi 4) 8)
+(tan-cf (/ pi 4) 9)
+]
+
+与 @secref["exercise 1.37"] 一样，对 @racket[cont-frac] 的结果加上浮点数以迫使它从有理数变成浮点数。
+
+题中所说的 J@._ H@._ Lambert 其实就是 @secref["exercise 1.36"] 中提到的“朗伯 W 函数”中的朗伯。朗伯还是第一个证明 @${\pi} 是无理数的人，用到的其实也就是本题中他发现的这个连分式。大体思路是，先证明了如果 @${x} 是非零的有理数，那么上述连分式必定是无理数。而我们知道 @${\tan \dfrac{\pi}{4} = 1} 是有理的，所以 @${\dfrac{\pi}{4}} 一定不是有理数（所以是无理数）。所以 @${\pi} 也是无理数。详细的证明过程可以在网上找到。
