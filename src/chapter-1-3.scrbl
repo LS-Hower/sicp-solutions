@@ -492,3 +492,121 @@ k-2
 与 @secref["exercise 1.37"] 一样，对 @racket[cont-frac] 的结果加上浮点数以迫使它从有理数变成浮点数。
 
 题中所说的 J@._ H@._ Lambert 其实就是 @secref["exercise 1.36"] 中提到的“朗伯 W 函数”中的朗伯。朗伯还是第一个证明 @${\pi} 是无理数的人，用到的其实也就是本题中他发现的这个连分式。大体思路是，先证明了如果 @${x} 是非零的有理数，那么上述连分式必定是无理数。而我们知道 @${\tan \dfrac{\pi}{4} = 1} 是有理的，所以 @${\dfrac{\pi}{4}} 一定不是有理数（所以是无理数）。所以 @${\pi} 也是无理数。详细的证明过程可以在网上找到。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 1.40 | 牛顿法解三次方程}
+
+@racket[newtons-method] 过程太好用了，我们真就只需要把 @racket[cubic] 写成对三次多项式函数求值就可以了：
+
+@ss-interaction[
+(define (cubic a b c)
+  (lambda (x)
+    (+ (cube x)
+       (* a (square x))
+       (* b x)
+       c)))
+(define poly1437 (cubic 4 3 7))
+(define r (newtons-method poly1437 (- 4.0)))
+r
+(poly1437 r)
+]
+
+可以看到，求出的根 @racket[r] 重新代入多项式函数 @racket[poly1437] 之后得到的结果确实非常接近 @racket[0] 。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 1.41 | “使过程应用两次程度的能力”}
+
+@ss-interaction[
+(define (double f)
+  (lambda (x)
+    (f (f x))))
+]
+
+TODO: 分析
+
+@itemlist[
+  #:style 'ordered
+  @item{}
+]
+
+所以 @racket[((double (double double)) inc)] 能够将参数增加 @racket[8] 。验证一下书上的例子：
+
+@ss-interaction[
+(inc 8)
+((double inc) 8)
+(((double double) inc) 8)
+(((double (double double)) inc) 8)
+]
+
+@; ----------------------------------------------------------------------
+
+@section{练习 1.42 | 函数复合}
+
+@ss-interaction[
+(define (compose f g)
+  (lambda (x)
+    (f (g x))))
+((compose square inc) 6)
+]
+
+下一题 @secref["exercise 1.43"] 将会着重讲解函数复合。
+
+@; ----------------------------------------------------------------------
+
+@section[#:tag "exercise 1.43"]{练习 1.43 | 函数迭代}
+
+我们先不用 @racket[compose] 过程，而是直接用更传统一些的方法：
+
+@ss-interaction[
+(define (repeated f n)
+  (define (transform x)
+    (define (iter current steps-last)
+      (if (= steps-last 0)
+          current
+          (iter (f current) (- steps-last 1))))
+    (iter x n))
+  transform)
+((repeated square 2) 5)
+]
+
+我们接下来用函数复合这一工具来做一些研究。数学上将函数复合记为 @${f \circ g} ，有 @${(f \circ g)(x) = f(g(x))} 。所以我们可以发现，“ @${n} 次重复应用 @${f} ”应该得到的是函数 @${\underbrace{f \circ f \circ \cdots \circ f}_n} 。数学上将其记为 @${f^{(n)}} ，加括号以示和乘幂不同。
+
+函数复合是满足结合律的，想一想就知道非常显然：
+
+@itemlist[@item{函数 @${f \circ (g \circ h)} 会对参数先应用 @${h} 函数，再应用 @${g} 函数，再应用 @${f} 函数；}
+          @item{函数 @${(f \circ g) \circ h} 也是会对参数先应用 @${h} 函数，再应用 @${g} 函数，再应用 @${f} 函数。}]
+
+（怎么感觉说了好多废话。）
+
+我们利用 @racket[compose] 过程重新实现一下 @racket[repeated] 过程：
+
+@ss-interaction[
+(define (repeated f n)
+  (if (= n 0)
+      identity
+      (compose f (repeated f (- n 1)))))
+((repeated square 2) 5)
+]
+
+看起来有些熟悉，其实是 1.2.4 章节写出的求幂过程和它很像。那个章节里还做到了优化，只用 @${\Theta(\log n)} 的步数就算出了一个数的 @${n} 次幂。事实上，模仿那个章节里的规则，我们可以写出：
+
+@$${
+  f^{(n)} =
+  \begin{cases}
+    \mathrm{id}, & \text{if } n = 0  \\
+    (f \circ f)^{(n/2)}, & \text{if } n > 0 \text{ and } n \text{ is even}  \\
+    f \circ f^{(n-1)}, & \text{if } n > 0 \text{ and } n \text{ is odd}  \\
+  \end{cases}
+}
+
+其中 @${\mathrm{id}} 函数就是恒等函数，在 Scheme 里是我们见过的 @racket[identity] 过程，它直接返回原参数不变。
+
+我们可以立即将上述想法翻译成 Scheme 代码：
+
+TODO: 写出代码
+
+TODO: 快速函数复合是在用对数次步数搭建一个会执行线性次步数的过程
+
+@; TODO: (1.45 题) 数学方法定量分析需要做平均阻尼的次数
