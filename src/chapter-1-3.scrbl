@@ -809,3 +809,100 @@ r
 
 其中 @${(1/f)} 表示函数 @${x \mapsto 1/f(x)} 。收敛速度是 @${d+1} 次。牛顿迭代法就是 @${d=1} 时的特殊情况，哈雷迭代法就是 @${d=2} 时的特殊情况。
 
+@; ----------------------------------------------------------------------
+
+@section{练习 1.46 | 迭代式改进}
+
+@racket[iterativa-improve] 过程本身实现起来倒是没什么难度。这里不直接写一个 @tt{lambda} 表达式来作为返回值而是使用了内部定义，是因为它需要递归。（不过，练习 4.21 中还真就讲解了如何只用 @tt{lambda} 实现递归，不过这里就先不搞了。）
+
+@ss-interaction[
+(define (iterative-improve good-enough? improve)
+  (define (iter guess)
+    (if (good-enough? guess)
+        guess
+        (iter (improve guess))))
+  iter)
+(define (fixed-point-altered f first-guess)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2))
+       tolerance))
+  (let ([go (iterative-improve (lambda (guess)
+                                 (let ([next (f guess)])
+                                   (close-enough? guess next)))
+                               f)])
+    (f (go first-guess))))
+(define (sqrt-altered x)
+  (let ([go (iterative-improve (lambda (guess)
+                                 (< (abs (- (square guess) x)) 0.001))
+                               (lambda (guess)
+                                 (average guess (/ x guess))))])
+    (go 1.0)))
+
+(fixed-point-altered cos 1.0)
+(sqrt-altered 9)
+(/ (+ 1 (sqrt-altered 5)) 2)
+(square (sqrt-altered 1000))
+]
+
+实现 @racket[fixed-point] 的时候其实很不优雅。在判断一个数是否足够好时，我们临时计算出了下一个值，只是用它做一下比较，然后立即丢弃掉。 @racket[f] 本身已经作为第二个参数传进去了，却要在和一个参数中再次现身，重复了。而且，这个临时算出的值不能让 @racket[iterative-improve] 过程用来更新状态，它只会自己浑然不觉地再算一次。相当于多做了整整一倍的重复计算。
+
+我们重新审视一下 @racket[fixed-point] 在做什么。我们可以反过来看：在判断最新的一个猜测值够不够好时，需要将它与前一个猜测值做比较。如果我们在迭代中能够同时保存两个数值的状态。一个存储上一个值，一个存储最新的值，就好了。然而， @racket[iterative-improve] 中只维护一个变量 @racket[guess] 。我们需要一种技术，用一个变量保存两个数值的状态。这真的可以做到吗？纵观整个第一章，我们处理的数据只分为数值和过程这两类。我们可以将过程作为突破口，做出一个“二元组”，它能够保存两个对象：
+
+@ss-interaction[
+(define (make-pair a b)
+  (define (dispatch index)
+    (if (= index 0)
+        a
+        b))
+  dispatch)
+(define (get-first pair)
+  (pair 0))
+(define (get-second pair)
+  (pair 1))
+]
+
+@racket[(make-pair a b)] 过程制造出一个对象，它表示着二元组 (@racket[a], @racket[b])，同时承载着 @racket[a] 和 @racket[b] 的信息。这个二元组可以保存成一个对象。 @racket[get-first] 和 @racket[get-second] 过程能分别从一个二元组中取出 @racket[a] 和 @racket[b] 。可以忽略这个二元组其实是一个过程的事实，因为反正它能保存成一个对象，能够 @racket[get-first] 和 @racket[get-second] ，那它就可以当作二元组。我们甚至可以定义一个过程 @racket[display-pair] 来直接打印一个二元组，显得它更像一个“二元组”了。
+
+@ss-interaction[
+(define (display-pair pair)
+  (newline)
+  (display "(")
+  (display (get-first pair))
+  (display ", ")
+  (display (get-second pair))
+  (display ")"))
+]
+
+我们来测试一下：
+
+@ss-interaction[
+(define p (make-pair 42 3.14))
+(get-first p)
+(get-second p)
+(display-pair p)
+]
+
+有了二元组，我们就可以用 @racket[iterative-improve] 把 @racket[fixed-point] 再重写一次了。
+
+@ss-interaction[
+(define (fixed-point-altered-2 f first-guess)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2))
+       tolerance))
+  (define (pair-close-enough? pair)
+    (close-enough? (get-first pair)
+                   (get-second pair)))
+  (define (pair-transform pair)
+    (let ([old (get-first pair)]
+          [new (get-second pair)])
+      (make-pair new (f new))))
+  (let ([go (iterative-improve pair-close-enough?
+                               pair-transform)])
+    (get-second (go (make-pair (+ first-guess 100.0)
+                               first-guess)))))
+(fixed-point-altered-2 cos 1.0)
+]
+
+在这里，我们一开始使用 @racket[(+ first-guess 100)] 来当作“上一次计算出的值”，只是为了和 @racket[first-guess] 值相差足够大，以便启动计算。
+
+在第二章，我们一开始就会学到“序对”，获得将两个对象组合成一个对象的能力，并开始用序对来表示一切数据结构。从二章开始会经常见到的 @racket[cons] 、 @racket[car] 和 @racket[cdr] 就对应着这里的 @racket[make-pair] 、 @racket[get-first] 和 @racket[get-second] 。原书 2.1.3 节也会讲到如何用过程来实现序对，方法就和上方一样。针对第一章的最后一题，这个优化可以视为从“构造过程抽象”到“构造数据抽象”的一个转折。
