@@ -120,6 +120,10 @@
 
 ; -------- 1.3.4 --------
 
+(define (average-damp f)
+  (lambda (x)
+    (average x (f x))))
+
 (define dx 0.00001)
 
 (define (deriv g)
@@ -133,6 +137,9 @@
 
 (define (newtons-method g guess)
   (fixed-point (newton-transform g) guess))
+
+(define (fixed-point-of-transform g transform guess)
+  (fixed-point (transform g) guess))
 
 ; -------- end --------
 
