@@ -4,3 +4,5 @@
 - 自动生成形如 "exercise x.y" 的 tag
 - 设计 `oeis-sequence` 过程： `@oeis-sequence["A001783"]`
 - 源文档内留下的 TODO
+- align->align*
+- 时间->步数
