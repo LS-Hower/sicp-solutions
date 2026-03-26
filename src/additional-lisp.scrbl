@@ -48,16 +48,18 @@ Racket 和 Chez Scheme 都支持大整数类型，所以不必担心整数溢出
 @ss-interaction[
 (define (improper-list? x)
   (define (check p)
-    (cond [(pair? p) (check (cdr p))]
-          [(null? p) false]
-          [else true]))
+    (if (pair? p)
+        (check (cdr p))
+        (not (null? p))))
   (if (pair? x)
       (check x)
       false))
-(improper-list? (list 1 2 3))
+(improper-list? (cons 1 (cons 2 '())))
+(improper-list? (cons 2 '()))
+(improper-list? '())
 (improper-list? (cons 1 (cons 2 3)))
-(improper-list? (cons 1 2))
-(improper-list? 1)
+(improper-list? (cons 2 3))
+(improper-list? 3)
 ]
 
 可以发现，普通的序对也是不适当表，所以我们可以知道解释器是怎样打印一个普通序对的了。
