@@ -35,6 +35,12 @@ SICP，全名为《计算机程序的构造和解释》，英文名为 @italic{S
       @item{@hyperlink["./chapter-1-3.html"]{1.3 用高阶函数做抽象}（练习 1.29 ~ 1.46）}
     ]
   }
+  @item{
+    第 2 章 构造数据抽象
+    @itemlist[
+      @item{@hyperlink["./chapter-2-1.html"]{2.1 数据抽象导引} （练习 2.1 ~ 1.16）}
+    ]
+  }
   @item{（其余部分正在编写中）}
   @item{@hyperlink["https://github.com/LS-Hower/sicp-solutions"]{（外部）本项目 GitHub 仓库}}
   @item{@hyperlink["https://ls-hower.github.io/index.html"]{（外部）LS_Hower 的个人主页（本页面的父页面）}}
