@@ -38,7 +38,7 @@ SICP，全名为《计算机程序的构造和解释》，英文名为 @italic{S
   @item{
     第 2 章 构造数据抽象
     @itemlist[
-      @item{@hyperlink["./chapter-2-1.html"]{2.1 数据抽象导引} （练习 2.1 ~ 1.16）}
+      @item{@hyperlink["./chapter-2-1.html"]{2.1 数据抽象导引} （练习 2.1 ~ 2.16）}
     ]
   }
   @item{（其余部分正在编写中）}
