@@ -250,3 +250,55 @@
 ]
 
 @racket[integer-exponent] 的起名参考了 Wolfram 的 @hyperlink["https://reference.wolfram.com/language/ref/IntegerExponent.html"]{IntegerExponent} 。这一函数的扩展在 OEIS 数列 @hyperlink["https://oeis.org/A286561"]{A286561} 中亦有记载。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 2.6 | 丘奇数}
+
+我们按照书上说的做，利用代换求值一下 @racket[(add-1 zero)] ：
+
+@verbatim{
+(add-1 zero)
+(lambda (f) (lambda (x) (f ((zero f) x))))
+(lambda (f) (lambda (x) (f (((lambda (f) (lambda (x) x)) f) x))))
+(lambda (f) (lambda (x) (f ((lambda (x) x) x))))
+(lambda (f) (lambda (x) (f x)))
+}
+这就是 @racket[one] 。
+
+事实上，非负整数 @racket[n] 所对应的丘奇数，作为过程的能力是：接收一个过程 @racket[f] ，返回一个过程 @racket[g] 。这个 @racket[g] 作用于一个参数上所得到的结果，和将 @racket[f] 应用于该参数 @racket[n] 次所得到的结果相同。
+
+因此，我们可以直接写出 @racket[zeno] 、 @racket[one] 和 @racket[two] 的定义。
+
+@ss-interaction[
+(define zero (lambda (f) (lambda (x) x)))
+(define one  (lambda (f) (lambda (x) (f x))))
+(define two  (lambda (f) (lambda (x) (f (f x)))))
+]
+
+现在定义一下丘奇数的加法。
+
+@ss-interaction[
+(define (church-add a b)
+  (lambda (f)
+    (let ([g (a f)]
+          [h (b f)])
+      (compose g h))))
+]
+
+@itemlist[@item{@racket[a] 能够将 @racket[f] 变为 @racket[g] ， @racket[g] 对参数的效果和应用 @racket[a] 次 @racket[f] 一样；}
+          @item{@racket[b] 能够将 @racket[f] 变为 @racket[h] ， @racket[h] 对参数的效果和应用 @racket[b] 次 @racket[f] 一样。}]
+
+因此，将 @racket[g] 和 @racket[h] 复合，得到的函数对参数的效果就和应用 a+b 次 @racket[f] 一样了。这就是丘奇数加法的写法。
+
+测试一下：
+
+@ss-interaction[
+(define three (church-add one two))
+(define plus-3 (three inc))
+(plus-3 7)
+]
+
+在 λ 演算中，这是定义非负整数最常见的方式。
+
+事实上，Lisp 语言的设计某种程度上和 λ 演算长得很像（这句没谈本质，谈的是表象）。
