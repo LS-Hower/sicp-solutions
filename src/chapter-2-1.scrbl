@@ -220,3 +220,33 @@
 2
 }
 
+@; ----------------------------------------------------------------------
+
+@section{练习 2.5 | 非负整数数对用一个正整数就能表示}
+
+题中给出的是一个映射 @${f: \, \mathbb{N} \times \mathbb{N} \to S} ，其中 @${S = \{ 2^a 3^b | a, b \in \mathbb{N} \}} 。映射规则为 @${f(a, b) = 2^a 3^b} 。
+
+首先证明 @${f} 是单射。假设有 @${(a_1, b_1)} 和 @${(a_2, b_2)} 是两个不同的数对，却对应相同的正整数 @${n} ，即 @${n = 2^{a_1}3^{b_1} = 2^{a_2}3^{b_2}} 。但由算术基本定理（正整数唯一分解定理）， @${n} 的质因数分解是唯一的，因此必须有 @${a_1 = a_2} 且 @${b_1 = b_2} ，这与“两个数对不同”的假设矛盾。所以不同的数对一定对应着不同的正整数。
+
+然后证明 @${f} 是满射。对于任何属于集合 @${S} 的整数 @${n} ，我们可以通过质因数分解得到 @${n = 2^a 3^b} ，从而得到 @${a} 和 @${b} ，得到对应的数对。
+
+因此 @${f} 是一个双射。形如 @${2^a 3^b} 的正整数和数对 @${(a, b)} 是一一对应的。
+
+题中还指出，只需要用算术运算来实现这种序对。只使用算术运算的具体算法可以在下方代码中看到。
+
+@ss-interaction[
+(define (cons-nonnegative-integer a b)
+  (* (expt 2 a) (expt 3 b)))
+(define (integer-exponent n b)
+  (if (= (remainder n b) 0)
+      (+ 1 (integer-exponent (/ n b) b))
+      0))
+(define (car-nonnegative-integer p)
+  (integer-exponent p 2))
+(define (cdr-nonnegative-integer p)
+  (integer-exponent p 3))
+(car-nonnegative-integer (cons-nonnegative-integer 7 8))
+(cdr-nonnegative-integer (cons-nonnegative-integer 7 8))
+]
+
+@racket[integer-exponent] 的起名参考了 Wolfram 的 @hyperlink["https://reference.wolfram.com/language/ref/IntegerExponent.html"]{IntegerExponent} 。这一函数的扩展在 OEIS 数列 @hyperlink["https://oeis.org/A286561"]{A286561} 中亦有记载。
