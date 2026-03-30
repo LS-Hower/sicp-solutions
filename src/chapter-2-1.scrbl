@@ -192,3 +192,31 @@
 @; TODO
 
 计算几何学这方面的实际代码中，往往要处理大量边界情况，例如高为 0 或者线段始点和终点重合，比较烦人。这里为了清晰体现代码逻辑，没有处理这样的边界情况。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 2.4 | 序对的另一种过程性表示方式}
+
+我们还是不要把 @racket[cons] 、 @racket[car] 和 @racket[cdr] 这三个名字污染了为好。
+
+@ss-interaction[
+(define (cons-alt x y)
+  (lambda (m) (m x y)))
+(define (car-alt z)
+  (z (lambda (p q) p)))
+(define (cdr-alt z)
+  (z (lambda (p q) q)))
+(car-alt (cons-alt 1 2))
+(cdr-alt (cons-alt 1 2))
+]
+
+我们使用代换模型看一看 @racket[(cdr-alt (cons-alt 1 2))] 为什么可以得到 @racket[2] 。
+
+@verbatim{
+(cdr-alt (cons-alt 1 2))
+((cons-alt 1 2) (lambda (p q) q))
+((lambda (m) (m 1 2)) (lambda (p q) q))
+((lambda (p q) q) 1 2)
+2
+}
+
