@@ -211,6 +211,7 @@
     (make-interval (min p1 p2 p3 p4)
                    (max p1 p2 p3 p4))))
 
+; 会在练习 2.10 中被覆盖掉。
 (define (div-interval x y)
   (mul-interval x
                 (make-interval (/ 1.0 (upper-bound y))

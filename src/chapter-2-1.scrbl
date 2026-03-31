@@ -424,3 +424,36 @@
           @item{对于除法，区间 @${[0, 1]} 除以 @${[1, 2]} 得到 @${[0, 1]} ，而区间 @${[0, 1]} 除以 @${[2, 3]} 得到 @${\left[ 0, \dfrac{1}{2} \right]} 。两次除法中都是两个区间的宽度均为是 @${\dfrac{1}{2}} ，但结果区间的宽度一个是 @${\dfrac{1}{2}} ，一个是 @${\dfrac{1}{4}} ，不唯一。}]
           
 所以两个区间之积（或商）的宽度不是这两个区间宽度的函数。
+
+
+@; ----------------------------------------------------------------------
+
+@section{练习 2.10 | 区间算术 —— 禁止除以横跨 0 的区间}
+
+把原本的 @racket[div-interval] 重命名成 @racket[div-interval-raw] ，然后使用偷天换日大法。
+
+@ss-interaction[
+(define (raw-div-interval x y)
+  (mul-interval x
+                (make-interval (/ 1.0 (upper-bound y))
+                               (/ 1.0 (lower-bound y)))))
+
+(define (div-interval x y)
+  (display "okay")
+  (if (and (<= (lower-bound y) 0.0)
+           (<= 0.0 (upper-bound y)))
+      (error "Divisor interval spans zero -- DIV-INTERVAL"
+             (lower-bound y)
+             (upper-bound y))
+      (raw-div-interval x y)))
+]
+
+测试一下：
+
+@ss-interaction[
+(print-interval (div-interval (make-interval 0.0 1.0)
+                              (make-interval 2.0 3.0)))
+(print-interval (div-interval (make-interval 0.0 1.0)
+                              (make-interval 0.0 3.0)))
+]
+
