@@ -376,3 +376,35 @@
 (lower-bound length)
 (define mistake (make-interval 9.0 1.1))
 ]
+
+@; ----------------------------------------------------------------------
+
+@section{练习 2.8 | 区间算术 —— 实现减法}
+
+除以一个数就等于乘上这个数的倒数。与之类似，减去一个数就等于加上这个数的相反数。当然，也要注意，取负之后，大小关系会反转。因此可以写出代码：
+
+@ss-interaction[
+(define (sub-interval x y)
+  (add-interval x
+                (make-interval (- (upper-bound y))
+                               (- (lower-bound y)))))
+]
+
+为了测试，我们定义一个过程 @racket[print-interval] 用来打印区间：
+
+@ss-interaction[
+(define (print-interval interval)
+  (newline)
+  (display "[")
+  (display (lower-bound interval))
+  (display ", ")
+  (display (upper-bound interval))
+  (display "]"))
+]
+
+测试一下减法：
+
+@ss-interaction[
+(print-interval (sub-interval (make-interval 5.0 6.0)
+                              (make-interval 2.0 3.0)))
+]
