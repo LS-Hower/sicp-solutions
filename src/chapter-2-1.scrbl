@@ -19,7 +19,7 @@
 
 @; ----------------------------------------------------------------------
 
-@section{练习 2.1 | 有理数的正规化}
+@section[#:tag "exercise 2.1"]{练习 2.1 | 有理数的正规化}
 
 @ss-interaction[
 (define (make-rat n d)
@@ -302,3 +302,77 @@
 在 λ 演算中，这是定义非负整数最常见的方式。
 
 事实上，Lisp 语言的设计某种程度上和 λ 演算长得很像（这句没谈本质，谈的是表象）。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 2.7 | 区间算术 —— 实现选择函数}
+
+这里其实有一个小问题。 @racket[make-interval] 过程的参数 @racket[a] 和 @racket[b] ，如果前者大于后者，该如何处理呢？可以有几种做法：
+
+@itemlist[
+  #:style 'ordered
+  @item{宽进严出：照常返回 @racket[(cons a b)] ，并在选择函数中使用 @racket[min] 和 @racket[max] ，做到将 @racket[a] 视为上界，将 @racket[b] 视为下界；}
+  @item{宽进宽出：照常返回 @racket[(cons a b)] ，但在选择函数中仍然机械地将 @racket[a] 视为下界，将 @racket[b] 视为上界，至于用户那边会出什么问题直接放任不管，等于说假定了用户在调用 @racket[make-interval] 时一定会自觉保证 @racket[a] 小于等于 @racket[b]；}
+  @item{严进严出：直接报错，从而禁止任何区间对象里 @racket[car] 大于 @racket[cdr] 这种现象存在。}
+]
+
+书本前面章节对有理数对象的处理是就“宽进宽出”的。构造函数 @racket[make-rat] 从来没有考虑过分母 @racket[d] 为 @racket[0] 的情况，连我在 @secref["exercise 2.1"] 中改进这个 @racket[make-rat] 时我也没考虑过。用户可以畅通无阻地构造出分母为 @racket[0] 的有理数。分母没被传成 @racket[0] 过真就全靠用户自觉。
+
+@ss-interaction[
+(print-rat (make-rat 6 0))
+(print-rat (make-rat (- 5) 0))
+]
+
+书上写出的 @racket[make-interval] 过程是“宽进”的，没有检查参数。但是书上所有使用了 @racket[make-interval] 的代码其实都有着“保证第一个参数小于等于第二个参数”，有着一个“严进”的意图。我们应该选择哪种做法呢？
+
+宽进严出法看起来最为“用户友好”，但其实与严进严出相比，它让用户发现潜在 bug 的可能性更小了。为什么说严进严出更有可能让用户发现 bug 呢？
+
+想象一个场景，某个用户编写了大量算法代码，能够算出了某个物理量的理论下界和理论上界，他分别起名为 @racket[low] 和 @racket[high] 。他随后调用 @racket[(make-interval low high)] 构造出了一个区间对象并返回它。但如果前边大量计算代码隐藏着一个 bug 使得 @racket[low] 比本应算出的正确值不正常地高了不少，那么宽进严出的设计就会使这个 bug 被偷偷隐藏了。代码继续运行下去，随后对这个区间取 @racket[lower-bound] 只会得到上界，取 @racket[upper-bound] 只会得到一个无意义的值。而这些错误完全没有被察觉，直到十万八千里之外某个地方的 @racket[sqrt] 平方根函数接收了一个负值从而报错，或者各种别的更诡异的位置报出更玄幻的错误信息。程序员并不知道 bug 最初的起因到底在哪里，只能硬着头皮一点一点寻找。几个小时乃至几天的进度停滞、抓耳挠腮，最终找到罪魁祸首 @racket[make-interval] 以及选择函数，一切都是因为这个宽进严出的“小巧思”。
+
+而 @racket[make-interval] 如果做了检查，就可以将错误报告在更准确的地方了，而不是十万八千里外。上面的问题都可以避免了。
+
+这种“严进”做法推而广之就是现在（2026 年 3 月 31 日）流行的“快速出错”（fail-fast）思想的雏形：有异常情况就尽早报告出来，不要藏着掖着、让程序带病执行，以免严重影响寻找 bug 的进度。
+
+这个例子或许太过理想不会遇到，但这样的思想是完全可以推广到一切编程活动，甚至编程以外的事务的。
+
+说回软件，从更高的视角看，“宽进严出”也是有其他问题的。著名开源音视频处理软件 @hyperlink["https://www.ffmpeg.org/"]{FFmpeg} 对待数据就是宽进严出的，而 FFmpeg 的维护者之一就写过文章讨论这种设计引发的问题。文章链接： @hyperlink["https://zhuanlan.zhihu.com/p/1974620533321656280"]{FFmpeg和非洲二哥 - quink的文章 - 知乎}
+
+简单地说，FFmpeg 是这样宽进严出的：
+
+@itemlist[@item{对于输入的音视频数据，放宽限制，兼容各种规范的不规范的数据，给犯错的人擦屁股}
+          @item{对于生成的音视频数据，恪守标准规范，避免给人制造麻烦}]
+
+这导致了有人可能写出这样的描述：“这个视频，FFmpeg 能处理，FFplay 能播放，而某某播放器播放不了。”而事实上，这个视频其实已经很可能已经数据很不规范不合法了。 @bold{FFmpeg 不该这样用作“视频数据足够规范”的判定标准。} 文章作者最后一句话就是：“话说回来，FFmpeg无底线的兼容，也是乱七八糟码流横行的原因之一。大家把非洲二哥吃了没事，当成食品合格的唯一标准了。”这自然不是健康的“码流生态”。
+
+不过快速出错的做法也并非总是合适，尤其是在一些不能随便停运的基础设施中。至少要做好分级隔离。2025 年 11 月，Cloudflare 出现宕机事故，持续了约 4 小时，期间全球互联网几乎瘫痪了一半。究其原因，报错地点是代码中采用了快速出错的部分逻辑处。代码及时暴露出了问题，但缺乏 @bold{分级隔离} ，导致整个系统一触就倒。
+
+为什么要讲这些东西？因为这本书的最初的目的之一就是教授一些组织和构造大型程序的技术，控制它们的复杂度，还能让我们更好地理解其他大型程序，或许还能推而广之，将这些思想应用于其他领域。这些是 SICP 的前言（序）里讲到的。
+
+言归正传，我们这里只是写点小算法玩玩，严进严出设计就很好。我们在构造函数中就做检查，并把该报告的错误报告出来：
+
+@ss-interaction[
+(define (make-interval a b)
+  (if (<= a b)
+      (cons a b)
+      (error "First argument is greater than the second -- MAKE-INTERVAL"
+             a
+             b)))
+]
+
+刚好也方便了选择函数的实现：
+
+@ss-interaction[
+(define (lower-bound interval)
+  (car interval))
+(define (upper-bound interval)
+  (cdr interval))
+]
+
+测试一下：
+
+@ss-interaction[
+(define length (make-interval 0.9 1.1))
+(lower-bound length)
+(lower-bound length)
+(define mistake (make-interval 9.0 1.1))
+]
