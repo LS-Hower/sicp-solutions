@@ -123,7 +123,7 @@
 上一部分的计算过程中已经讲出了这些结论，在这里汇总一下：
 
 @$${
-  \begin{align}
+  \begin{align*}
     \texttt{(f n)} = \texttt{(A 0 n)} &= 2n    \\
     \texttt{(g n)} = \texttt{(A 1 n)} &=
       \begin{cases}
@@ -135,7 +135,7 @@
         0, & \text{if } n = 0 \\
         \underbrace{2^{2^{\cdot^{\cdot^{2}}}}}_n, & \text{if } n > 0
       \end{cases}
-  \end{align}
+  \end{align*}
 }
 
 也用解释器验证一下：
@@ -168,7 +168,7 @@
 现在我们可以用超运算的记法重写一下刚刚的结论了：
 
 @$${
-  \begin{align}
+  \begin{align*}
     \texttt{(A 0 n)} &= 2[2]n \\
     \texttt{(A 1 n)} &=
       \begin{cases}
@@ -180,7 +180,7 @@
         0, & \text{if } n = 0 \\
         2[4]n, & \text{if } n > 0
       \end{cases}
-  \end{align}
+  \end{align*}
 }
 
 可以发现明显的规律性。事实上，可以证明， @racket[(A x y)] 可以表示如下：
@@ -511,10 +511,10 @@ TODO
 我们发现如果令 @${p' = q^2 + p^2} ，令 @${q' = q^2 + 2pq} ，那么上式结果可以写成 @${(bq' + aq' + ap', \, bp' + aq')} ，这正是 @${T_{p', q'}} 这一变换应用于 @${(a, b)} 的结果。也就是说，正如题面中所说，如果应用变换 @${T_{p, q}} 两次，效果就等同于应用变换 @${T_{p', q'}} 一次。然后通过 @${p} 和 @${q} 算出其中 @${p'} 和 @${q'} 的计算方式刚刚已经给出了：
 
 @$${
-  \begin{align}
+  \begin{align*}
     p' &= p^2 + q^2  \\
     q' &= q^2 + 2pq
-  \end{align}
+  \end{align*}
 }
 
 于是，我们可以填空了：
