@@ -464,11 +464,84 @@
 
 @itemlist[
   #:style 'ordered
-  @item{上界小于 0 的；}
-  @item{包含 0 的；}
-  @item{下界大于 0 的。}
+  @item{上界小于 0 的，称为“负区间”；}
+  @item{包含 0 的，称为“跨零区间”;}
+  @item{下界大于 0，称为“正区间”。}
 ]
+
+这里的名字是我自己起的。
 
 乘法有 2 个参数，所以一共是 @${3^2 = 9} 种情况。我们为 9 种情况分别考虑大小关系即可。
 
-TODO
+@ss-interaction[
+(define (negative-interval? x)
+  (< (upper-bound x) 0.0))
+
+(define (positive-interval? x)
+  (< 0.0 (lower-bound x)))
+
+(define (zerospan-interval? x)
+  (not (or (negative-interval? x) (positive-interval? x))))
+
+(define (mul-interval-test-version x y)
+  (let ([<x (lower-bound x)]
+        [x> (upper-bound x)]
+        [<y (lower-bound y)]
+        [y> (upper-bound y)])
+    (cond [(and (negative-interval? x) (negative-interval? y))
+           (make-interval (* x> y>) (* <x <y))]
+          [(and (negative-interval? x) (zerospan-interval? y))
+           (make-interval (* <x y>) (* <x <y))]
+          [(and (negative-interval? x) (positive-interval? y))
+           (make-interval (* <x y>) (* x> <y))]
+          [(and (zerospan-interval? x) (negative-interval? y))
+           (make-interval (* x> <y) (* <x <y))]
+          [(and (zerospan-interval? x) (zerospan-interval? y))
+           (make-interval (min (* x> <y) (* <x y>))
+                          (max (* <x <y) (* x> y>)))]
+          [(and (zerospan-interval? x) (positive-interval? y))
+           (make-interval (* <x y>) (* x> y>))]
+          [(and (positive-interval? x) (negative-interval? y))
+           (make-interval (* x> <y) (* <x y>))]
+          [(and (positive-interval? x) (zerospan-interval? y))
+           (make-interval (* x> <y) (* x> y>))]
+          [(and (positive-interval? x) (positive-interval? y))
+           (make-interval (* <x <y) (* x> y>))])))
+]
+
+只有两个区间都是跨零区间时，才需要 4 次乘法。
+
+虽然经过观察和思考对 9 种情况分别处理后写出的代码中，能看到 @tt{<} 和 @tt{>} 的使用出现了对称性，但最好还是用最初的 @racket[mul-interval] 对比一下。
+
+以下代码中使用了 @racket[list] 、 @racket[map] 、 @racket[apply] 、 @racket[andmap] 、 @racket[cartesian-product] 等函数，以及 @tt{let*} 特殊形式。其中 @hyperlink["https://docs.racket-lang.org/reference/pairs.html#%28def._%28%28lib._racket%2Fprivate%2Fmap..rkt%29._andmap%29%29"]{@racket[andmap]} 和 @hyperlink["file:///C:/Program%20Files/Racket/doc/reference/pairs.html#%28def._%28%28lib._racket%2Flist..rkt%29._cartesian-product%29%29"]{@racket[cartesian-product]} 两者来自 Racket 标准库。其他都在 SICP 后面的章节会讲到。
+
+如果现在没有相关知识，只需知道，如果最终得到 @racket[true] （即 @racket[#t] ），意味着测试通过了：对于下方代码里出现的 5 个区间所有构成的所有 25 种参数组合，我们本题中编写的 @racket[mul-interval-test-version] 与原本的 @racket[mul-interval] 都能有相同的结果。
+
+@ss-interaction[
+(define (equal-interval? x y)
+  (and (= (lower-bound x) (lower-bound y))
+       (= (upper-bound x) (upper-bound y))))
+
+(define (accepts-args-list f)
+  (lambda (args)
+    (apply f args)))
+
+(let* ([interval-3 (list (make-interval (- 3.0) (- 1.0))
+                         (make-interval (- 2.0)    0.0 )
+                         (make-interval (- 1.0) (+ 1.0))
+                         (make-interval    0.0  (+ 2.0))
+                         (make-interval (+ 1.0) (+ 3.0)))]
+       [args-list (cartesian-product interval-3 interval-3)])
+  (andmap equal-interval?
+          (map (accepts-args-list mul-interval)
+               args-list)
+          (map (accepts-args-list mul-interval-test-version)
+               args-list)))
+]
+
+测试通过之后，就可以比较放心地用新版覆盖掉旧版了：
+
+@ss-interaction[
+(define (mul-interval x y)
+  (mul-interval-test-version x y))
+]
