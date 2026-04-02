@@ -1,8 +1,6 @@
-- 持续更新
+
+- 持续更新剩余题目
 - 练习 1.11 前出现的“挑战”
-- 学习使用库在 Scribble 中画图，完成练习 1.14
-- 自动生成形如 "exercise x.y" 的 tag
-- 设计 `oeis-sequence` 过程： `@oeis-sequence["A001783"]`
-- 源文档内留下的 TODO
-- align->align*
-- 时间->步数
+- 学习使用库在 Scribble 中画图，或者直接用 `@image` ，将欠下的图补上
+- 见 `utils.rkt` 中的注释：自动生成形如 "exercise x.y" 的 tag，以及其他一些自动化的部分
+- 让二维表格好看一点
