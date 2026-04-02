@@ -7,7 +7,8 @@
 @; ----------------------------------------------------------------------
 
 @(require scribble-math
-          "interaction.rkt")
+          "interaction.rkt"
+          "utils.rkt")
 
 @; ----------------------------------------------------------------------
 
@@ -249,7 +250,7 @@
 (cdr-nonnegative-integer (cons-nonnegative-integer 7 8))
 ]
 
-@racket[integer-exponent] 的起名参考了 Wolfram 的 @hyperlink["https://reference.wolfram.com/language/ref/IntegerExponent.html"]{IntegerExponent} 。这一函数的扩展在 OEIS 数列 @hyperlink["https://oeis.org/A286561"]{A286561} 中亦有记载。
+@racket[integer-exponent] 的起名参考了 Wolfram 的 @hyperlink["https://reference.wolfram.com/language/ref/IntegerExponent.html"]{IntegerExponent} 。这一函数的扩展在 OEIS 数列 @oeis-sequence{A286561} 中亦有记载。
 
 @; ----------------------------------------------------------------------
 
@@ -422,7 +423,7 @@
 
 @itemlist[@item{对于乘法，区间 @${[0, 1]} 乘以 @${[1, 2]} 得到 @${[0, 2]} ，而区间 @${[0, 1]} 乘以 @${[2, 3]} 得到 @${[0, 3]} 。两次乘法中都是两个区间的宽度均为 @${\dfrac{1}{2}} ，但结果区间的宽度一个是 @${1} ，一个是 @${\dfrac{3}{2}} ，不唯一。}
           @item{对于除法，区间 @${[0, 1]} 除以 @${[1, 2]} 得到 @${[0, 1]} ，而区间 @${[0, 1]} 除以 @${[2, 3]} 得到 @${\left[ 0, \dfrac{1}{2} \right]} 。两次除法中都是两个区间的宽度均为是 @${\dfrac{1}{2}} ，但结果区间的宽度一个是 @${\dfrac{1}{2}} ，一个是 @${\dfrac{1}{4}} ，不唯一。}]
-          
+
 所以两个区间之积（或商）的宽度不是这两个区间宽度的函数。
 
 @; ----------------------------------------------------------------------
@@ -641,7 +642,7 @@
 @ss-interaction[
 (define r1 (make-center-percent 5.0 5.0))
 (define r2 (make-center-percent 20.0 5.0))
-  
+
 (print-interval (par1 r1 r2))
 (print-interval (par2 r1 r2))
 ]
