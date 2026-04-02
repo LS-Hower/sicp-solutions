@@ -305,7 +305,7 @@
 
 @; ----------------------------------------------------------------------
 
-@section{练习 2.7 | 区间算术 —— 实现选择函数}
+@section[#:tag "exercise 2.7"]{练习 2.7 | 区间算术 —— 实现选择函数}
 
 这里其实有一个小问题。 @racket[make-interval] 过程的参数 @racket[a] 和 @racket[b] ，如果前者大于后者，该如何处理呢？可以有几种做法：
 
@@ -546,4 +546,37 @@
 @ss-interaction[
 (define (mul-interval x y)
   (mul-interval-test-version x y))
+]
+
+@; ----------------------------------------------------------------------
+
+@section{练习 2.12 | 区间算术 —— 用百分数描述误差}
+
+@ss-interaction[
+(define (make-center-percent c p)
+  (if (< p 0.0)
+      (error "Percent is less than 0 -- MAKE-CENTER-PERCENT" c p)
+      (make-center-width c (abs (* 0.01 p c)))))
+(define (percent i)
+  (if (= (center i) 0.0)
+      (error "Center of interval is 0 -- PERCENT"
+             (lower-bound i)
+             (upper-bound i))
+      (* 100 (abs (/ (width i) (center i))))))
+]
+
+这里在构造函数 @racket[make-center-percent] 中：
+
+@itemlist[@item{没有拒绝中心点为 @racket[0.0] 的情况，因为可能有人纯粹将这个函数用于构造区间，但之后只使用 @racket[lower-bound] 和 @racket[upper-bound] 函数获取上下界。}
+          @item{为了符合 @secref["exercise 2.7"] 中为 @racket[make-interval] 设计的“严进”要求，我们需要使用 @racket[abs] 。}
+          @item{拒绝了百分数为负数的情况。这是我们为它自己设计的“严进”要求。}]
+
+测试一下：
+
+@ss-interaction[
+(percent (make-center-percent 4.2 13))
+(percent (make-center-percent (- 4.2) 13))
+(percent (make-center-percent (- 4.2) 0))
+(percent (make-center-percent 0 13))
+(make-center-percent 0 (- 13))
 ]
