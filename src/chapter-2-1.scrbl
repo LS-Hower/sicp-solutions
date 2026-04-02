@@ -438,7 +438,6 @@
                                (/ 1.0 (lower-bound y)))))
 
 (define (div-interval x y)
-  (display "okay")
   (if (and (<= (lower-bound y) 0.0)
            (<= 0.0 (upper-bound y)))
       (error "Divisor interval spans zero -- DIV-INTERVAL"
