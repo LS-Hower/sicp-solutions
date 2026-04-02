@@ -632,3 +632,49 @@
 @$${r_{\ast} = \dfrac{1 + r_1 r_2}{r_1 + r_2} \approx \dfrac{1}{r_1 + r_2}}
 
 注意，上方的相对误差并没有考虑百分数表示形式，如 @${r=0.05} 实际上对应百分数 @${5 \%} 。在应用公式时，不要忘记将数值乘以、除以 @${100} 。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 2.14 | 区间算术 —— 代数上等价的计算式会产生不同结果}
+
+测试一下并联电阻计算。
+
+@ss-interaction[
+(define r1 (make-center-percent 5.0 5.0))
+(define r2 (make-center-percent 20.0 5.0))
+  
+(print-interval (par1 r1 r2))
+(print-interval (par2 r1 r2))
+]
+
+可以看到， @racket[par1] 给出了更松的结果。
+
+测试一下有关 @racket[A] 和 @racket[B] 的运算。
+
+@ss-interaction[
+(define A (make-interval 1.0 2.0))
+(define B (make-interval 2.0 4.0))
+(print-interval (div-interval A A))
+(print-interval (div-interval A B))
+(print-interval (sub-interval A A))
+(print-interval (sub-interval A B))
+(print-interval (add-interval A A))
+(print-interval (mul-interval A A))
+]
+
+对于 @racket[(div-interval A A)] 和 @racket[(sub-interval A A)] ，更符合常理的结果应该是 @racket[1.0] 和 @racket[0.0] ，但打印出的值并非如此。
+
+再看看百分数很小的情况。
+
+@ss-interaction[
+(define C (make-center-percent 1.0 1.0))
+(define D (make-center-percent 2.0 1.0))
+(print-interval (div-interval C C))
+(print-interval (div-interval C D))
+(print-interval (sub-interval C C))
+(print-interval (sub-interval C D))
+(print-interval (add-interval C C))
+(print-interval (mul-interval C C))
+]
+
+更深入的解释和探讨见 @secref["exercise 2.16"] 。
