@@ -16,7 +16,9 @@ SICP，全名为《计算机程序的构造和解释》，英文名为 @italic{S
 
 这里使用本书第二版。
 
-书中使用 @hyperlink["https://www.scheme.org/"]{Scheme 编程语言} 。本项目使用 @hyperlink["https://racket-lang.org/"]{Racket 编程语言} 及其文档工具 @hyperlink["https://docs.racket-lang.org/scribble/"]{Scribble} 写成。Racket 是 Scheme 的超集。
+书中使用 @hyperlink["https://www.scheme.org/"]{Scheme 编程语言} 。本项目使用 @hyperlink["https://racket-lang.org/"]{Racket 编程语言} 及其文档工具 @hyperlink["https://docs.racket-lang.org/scribble/"]{Scribble} 写成。
+
+Racket 基本可以当成 Scheme 的超集，书中的许多代码无需修改即可直接用 Racket 解释器正常运行。但它们之间仍然存在差别。 @hyperlink["./additional-lisp.html"]{补充的 Lisp 知识} 这个页面中有更详细的讲解。
 
 原书中的练习题只有形如“x.y”的编号，没有名称。名称是我自行添加的。
 
