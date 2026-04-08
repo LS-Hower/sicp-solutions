@@ -47,7 +47,7 @@
 
 @; ----------------------------------------------------------------------
 
-@section{练习 2.17 | 反转一个表}
+@section{练习 2.18 | 反转一个表}
 
 @ss-interaction[
 (define (reverse ls)
@@ -64,7 +64,7 @@
 
 不变量是： @racket[(append (reverse dest) source)] 总是和原列表 @racket[ls] 内容相同。
 
-以 @racket[ls] 内容为 @racket[(1 4 9 16 25)] 为例，每次调用 @racket[iter] 时， @racket[source] 和 @racket[dest] 的内容分别是：
+直观上， @racket[iter] 的每一步，都 @racket[source] 的首个元素取出，置于 @racket[dest] 的开头。以 @racket[ls] 内容为 @racket[(1 4 9 16 25)] 为例，每次调用 @racket[iter] 时， @racket[source] 和 @racket[dest] 的内容分别是：
 
 @itemlist[@item{@racket[(1 4 9 16 25)] 和 @racket[()]；}
           @item{@racket[(4 9 16 25)] 和 @racket[(1)]；}
