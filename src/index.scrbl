@@ -41,6 +41,7 @@ Racket 基本可以当成 Scheme 的超集，书中的许多代码无需修改�
     第 2 章 构造数据抽象
     @itemlist[
       @item{@hyperlink["./chapter-2-1.html"]{2.1 数据抽象导引} （练习 2.1 ~ 2.16）}
+      @item{@hyperlink["./chapter-2-2.html"]{2.2 层次性数据和闭包性质} （练习 2.17 ~ 2.52）}
     ]
   }
   @item{（其余部分正在编写中）}

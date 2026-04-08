@@ -238,6 +238,10 @@
                   (add-interval (div-interval one r1)
                                 (div-interval one r2)))))
 
+; -------- 2.2.1 --------
+
+(define nil '()) ; Racket 有变量 null 表示空表。见“补充的 Lisp 知识”一页。
+
 ; -------- end --------
 
 (provide (all-defined-out))
