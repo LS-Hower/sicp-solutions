@@ -68,7 +68,7 @@
 
 @margin-note{在 Scheme 中，分号表示代码中的注释，从分号开始到该行行尾的内容都会被解释器忽略。}
 
-@margin-note{关于代码中的方括号，见主页面里的说明。}
+@margin-note{关于代码中的方括号，见 @hyperlink["./additional-lisp.html"]{补充的 Lisp 知识} 页面里的说明。}
 
 @ss-interaction[
 (code:line
