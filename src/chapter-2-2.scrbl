@@ -112,3 +112,33 @@
 
 对比一下 1.2.2 节时写的 @racket[cc] 过程。当时没有表这种数据结构，就只能将五种货币面值硬编码在 @racket[first-denomination] 过程里的 @tt{cond} 中，用一个整数变量 @racket[kinds-of-coins] 来表示考虑的硬币类型数，还要自己数出种类数的初始值 @racket[5] ，还要硬编码在 @racket[count-change] 过程的实现中。有了表，这个程序实现起来更自然、更优美了，代码可读性增强了，灵活性也大大增强了。
 
+@; ----------------------------------------------------------------------
+
+@section{练习 2.20 | 带点尾部记法：接收任意多个参数}
+
+@ss-interaction[
+(define (boolean-equal? a b)
+  (or (and a b)
+      (and (not a) (not b))))
+
+(define (filter take? ls)
+  (define (filtered sublist)
+    (cond [(null? sublist) nil]
+          [(take? (car sublist))
+           (cons (car sublist) (filtered (cdr sublist)))]
+          [else (filtered (cdr sublist))]))
+  (filtered ls))
+
+(define (same-parity . ls)
+  (let ([head-odd (odd? (car ls))])
+    (filter (lambda (x)
+              (boolean-equal? head-odd (odd? x)))
+            ls)))
+
+(same-parity 1 2 3 4 5 6 7)
+(same-parity 2 3 4 5 6 7)
+]
+
+这里定义了 @racket[boolean-equal?] 过程判断两个布尔值是否相等，它利用了如下事实：两个布尔值相等，当且仅当两者都是真或者两者都是假。原书后面的章节会介绍足够通用的 @racket[equal?] 过程，它对于布尔值也能正确工作。Racket 还自带 @racket[boolean=?] 谓词，专门用于布尔值。
+
+这里还定义了 @racket[filter] 过程，它取一个谓词 @racket[take?] 和一个表 @racket[ls] ，返回一个表，包含的是 @racket[ls] 中所有满足谓词 @racket[take?] 的项。不难感觉到，这个过程比较通用。它在原书正文中的稍后章节就会遇到，之后还会多次用到。
