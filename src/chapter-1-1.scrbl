@@ -78,9 +78,9 @@
         [else (+ a b)]))
 (code:comment "三个情况分别对应 a、b 和 c 是最小值时的情况"))
 
-(sum-of-bigger-two (- 5) (- 2) 4)
-(sum-of-bigger-two (- 5) 4 (- 2))
-(sum-of-bigger-two (- 2) 4 (- 5))
+(sum-of-bigger-two -5 -2 4)
+(sum-of-bigger-two -5 4 -2)
+(sum-of-bigger-two -2 4 -5)
 ]
 
 @; ----------------------------------------------------------------------

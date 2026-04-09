@@ -508,7 +508,7 @@ k-2
        (* b x)
        c)))
 (define poly1437 (cubic 4 3 7))
-(define r (newtons-method poly1437 (- 4.0)))
+(define r (newtons-method poly1437 -4.0))
 r
 (poly1437 r)
 ]

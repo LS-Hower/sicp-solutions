@@ -31,7 +31,7 @@
           (cons (- n1) (- d1))
           (cons n1 d1)))))
 (print-rat (add-rat one-third one-third))
-(print-rat (make-rat 6 (- 8)))
+(print-rat (make-rat 6 -8))
 ]
 
 这里使用了 Racket 自带的 @racket[gcd] 过程。它其实能够正确处理负数，调用 @racket[(gcd x y)] 就和调用 @racket[(gcd (abs x) (abs y))] 一样。但我们这里还是显式地调用了两次 @racket[abs] 。
@@ -321,7 +321,7 @@
 
 @ss-interaction[
 (print-rat (make-rat 6 0))
-(print-rat (make-rat (- 5) 0))
+(print-rat (make-rat -5 0))
 ]
 
 书上写出的 @racket[make-interval] 过程是“宽进”的，没有检查参数。但是书上所有使用了 @racket[make-interval] 的代码其实都有着“保证第一个参数小于等于第二个参数”，有着一个“严进”的意图。我们应该选择哪种做法呢？
@@ -528,11 +528,11 @@
   (lambda (args)
     (apply f args)))
 
-(let* ([interval-3 (list (make-interval (- 3.0) (- 1.0))
-                         (make-interval (- 2.0)    0.0 )
-                         (make-interval (- 1.0) (+ 1.0))
-                         (make-interval    0.0  (+ 2.0))
-                         (make-interval (+ 1.0) (+ 3.0)))]
+(let* ([interval-3 (list (make-interval -3.0 -1.0)
+                         (make-interval -2.0  0.0)
+                         (make-interval -1.0  1.0)
+                         (make-interval  0.0  2.0)
+                         (make-interval  1.0  3.0))]
        [args-list (cartesian-product interval-3 interval-3)])
   (andmap equal-interval?
           (map (accepts-args-list mul-interval)
@@ -575,10 +575,10 @@
 
 @ss-interaction[
 (percent (make-center-percent 4.2 13))
-(percent (make-center-percent (- 4.2) 13))
-(percent (make-center-percent (- 4.2) 0))
+(percent (make-center-percent -4.2 13))
+(percent (make-center-percent -4.2 0))
 (percent (make-center-percent 0 13))
-(make-center-percent 0 (- 13))
+(make-center-percent 0 -13)
 ]
 
 @; ----------------------------------------------------------------------
