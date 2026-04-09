@@ -17,9 +17,13 @@
 
 @hyperlink["./index.html"]{返回主页面}
 
+@; ----------------------------------------------------------------------
+
 @section{说明}
 
 SICP 书中刻意避开了一些在实际使用 Lisp 时需要了解的知识。此外，本项目使用的 Racket 编程语言和 Scheme 有一些差异。这里进行补充。
+
+@; ----------------------------------------------------------------------
 
 @section{数值精度问题}
 
@@ -33,65 +37,7 @@ Racket 和 Chez Scheme 都支持大整数类型，所以不必担心整数溢出
 
 根据 Scheme 标准 @hyperlink["https://ieeexplore.ieee.org/document/8960950"]{IEEE 1178-1990} ，符合标准的 Scheme 实现并不一定要支持大整数和有理数类型。Racket 和 Chez Scheme 对它们的支持，都属于扩展。
 
-@section{不适当表}
-
-在书中，我们知道解释器会将 @racket[(cons 1 (cons 2 (cons 3 '())))] 打印成 @tt{(1 2 3)} ，如下：
-
-@ss-interaction[(cons 1 (cons 2 (cons 3 '())))]
-
-但书中没有提到， @racket[(cons 1 (cons 2 3))] 会打印成什么样。事实上，会像这样打印：
-
-@ss-interaction[(cons 1 (cons 2 3))]
-
-对于最后的那个序对，解释器将它的两个元素都打印出来，但中间会加上一个点号表示“这是一个不适当表的结尾”。
-
-像这样，对于一个序对，如果一直对其应用 @racket[cdr] 直至它不是序对，最后得到的结果却不是空表 @racket['()] ，那么这样的结构称为“不适当表”（improper list）。我们可以写一个过程来检查一个序对是否是“不适当表”（原本就不是序对的对象，这里不当成不适当表）：
-
-@ss-interaction[
-(define (improper-list? x)
-  (define (check p)
-    (if (pair? p)
-        (check (cdr p))
-        (not (null? p))))
-  (if (pair? x)
-      (check x)
-      false))
-(improper-list? (cons 1 (cons 2 '())))
-(improper-list? (cons 2 '()))
-(improper-list? '())
-(improper-list? (cons 1 (cons 2 3)))
-(improper-list? (cons 2 3))
-(improper-list? 3)
-]
-
-利用 @racket[list?] 谓词， @racket[improper-list?] 可以实现得更简单：
-
-@ss-interaction[
-(define (improper-list? x)
-  (and (pair? x) (not (list? x))))
-(improper-list? (cons 1 (cons 2 '())))
-(improper-list? (cons 2 '()))
-(improper-list? '())
-(improper-list? (cons 1 (cons 2 3)))
-(improper-list? (cons 2 3))
-(improper-list? 3)
-]
-
-（上述代码并没有考虑循环列表。循环列表在原书练习题 3.13、3.18、3.19 中有提及，在本页中的 @secref["mutability of pair"] 部分也有讲解。）
-
-可以发现，普通的序对也是不适当表，所以我们可以知道解释器是怎样打印一个普通序对的了。
-
-@ss-interaction[(cons 1 2)]
-
-（SICP 竟然在全书都避免了打印不适当表。）
-
-@section{空表 @racket[nil] 或 @racket['()]}
-
-TODO：讨论有关空表是不是序对、是不是列表的问题；空表和假值的关系（Common Lisp）；Racket 的 null；引用 Reddit 帖子 @hyperlink["https://www.reddit.com/r/lisp/comments/1gd2hrs/why_does_nil_have_to_be_both_an_atom_and_a_list/"]{Why does nil have to be both an atom and a list?}
-
-@section[#:tag "mutability of pair"]{序对的可变性}
-
-TODO：循环列表；Racket 序对的不可变性以及 list? 结果被缓存
+@; ----------------------------------------------------------------------
 
 @section{方括号}
 
@@ -114,6 +60,8 @@ SICP 全书都使用圆括号写代码，但实际 Lisp 编程中人们有时会
 
 @hyperlink["https://docs.racket-lang.org/guide/syntax-overview.html#(part._.Conditionals_with_if__and__or__and_cond)"]{Racket 官方文档对 @tt{cond} 的讲解} 中提到，这是一种惯例写法，这样做有助于提高可读性。
 
+@; ----------------------------------------------------------------------
+
 @section{宏}
 
 SICP 中没有涉及 Lisp 宏，只在 4.1.2 节中的一个脚注里提了一句。
@@ -123,3 +71,113 @@ SICP 中没有涉及 Lisp 宏，只在 4.1.2 节中的一个脚注里提了一�
 自然，学习 SICP 并不需要理解宏，因为全书都没有使用过它。但在学习之余，也可以试着了解一下有关 Lisp 宏的知识。
 
 第三章中，延迟求值的语法就可以使用宏实现。
+
+@; ----------------------------------------------------------------------
+
+@section{表，不适当表，表结构，空表，序对}
+
+@subsection{不适当表}
+
+在书中，我们知道解释器会将 @racket[(cons 1 (cons 2 (cons 3 '())))] 打印成 @tt{(1 2 3)} ，如下：
+
+@ss-interaction[(cons 1 (cons 2 (cons 3 '())))]
+
+但书中没有提到， @racket[(cons 1 (cons 2 3))] 会打印成什么样。事实上，会像这样打印：
+
+@ss-interaction[(cons 1 (cons 2 3))]
+
+可以看到，对于最后的那个序对，解释器将它的两个元素都打印出来，但中间会加上一个点号，表示“这个序对链没有以 @racket[nil] 结尾”。
+
+像这样，对于一个序对，如果一直对其应用 @racket[cdr] 直至它不是序对，最后得到的结果却不是 @racket[nil] ，那么这样的对象称为“不适当表”（improper list）。原本就不是序对的对象，并不属于不适当表，空表 @racket[nil] 也是如此。
+
+根据上述说法，我们可以写一个过程 @racket[improper-list?] 来检查一个对象是否是“不适当表”：
+
+@ss-interaction[
+(define (improper-list? x)
+  (define (check p)
+    (if (pair? p)
+        (check (cdr p))
+        (not (null? p))))
+  (if (pair? x)
+      (check x)
+      false))
+(map improper-list?
+     (list (cons 1 (cons 2 '()))
+           (cons 2 '())
+           '()
+           (cons 1 (cons 2 3))
+           (cons 2 3)
+           3))
+]
+
+利用 @racket[list?] 谓词， @racket[improper-list?] 可以实现得更简单：
+
+@ss-interaction[
+(define (improper-list? x)
+  (and (pair? x) (not (list? x))))
+(map improper-list?
+     (list (cons 1 (cons 2 '()))
+           (cons 2 '())
+           '()
+           (cons 1 (cons 2 3))
+           (cons 2 3)
+           3))
+]
+
+（上述代码并没有考虑循环列表。循环列表在原书练习题 3.13、3.18、3.19 中有提及，在本页中的 @secref["mutability of pair"] 部分也有讲解。）
+
+可以发现，普通的序对也是不适当表，所以我们可以知道解释器是怎样打印一个普通序对的了：
+
+@ss-interaction[(cons 1 2)]
+
+对称地，我们也就有了一种不用 @racket[cons] 就表达一个序对或者不适当表的方式：
+
+@ss-interaction['(1 . 2) '(1 2 . 3)]
+
+（SICP 竟然在全书都避免了打印不适当表。）
+
+@subsection{空表是表吗}
+
+书中回避了对“ @racket[nil] 是不是表”的讨论，见原书 2.2.1 节脚注。但还是 2.2.1 节，另一个脚注说：“在这本书里，我们用术语 @italic{表} （@italic{list}）专指那些有表尾结束标记的序对的链。与此相对应，用术语 @italic{表结构} （@italic{list structure}）指所有的由序对构造起来的数据结构，而不仅是表。”
+
+这句话说表是“序对的链”，所以一个对象想要是表的话似乎至少应该存在一个序对？所以 @racket[nil] 或者说 @racket['()] 就应该不是表了？但事实上，Lisp 程序员一般都会认可“空表也是一个表”这种说法，因为这样会有更好的性质。标准 Common Lisp、标准 Scheme 和 Emacs Lisp 等方言都是这样的。脚注里直接描述成了“序对的链”应该只是编者的疏忽，不必咬文嚼字。
+
+在 Racket 里试一下：
+
+@ss-interaction[(list? '())]
+
+所以可以对“表结构”的定义做一个修正：空表 @racket[nil] 也认为是表结构。于是我们可以写一个过程 @racket[list-structure?] 判断一个对象是不是表结构：
+
+@ss-interaction[
+(define (list-structure? x)
+  (or (null? x) (pair? x)))
+(map list-structure?
+     (list (cons 2 '())
+           '()
+           (cons 2 3)
+           3))
+]
+
+我们还可以发现，这个修正过后的“表结构”其实刚好就是“适当表”和“不适当表”的合称。所以还能改写 @racket[list-structure?] ：
+
+@ss-interaction[
+(define (list-structure? x)
+  (or (list? x) (improper-list? x)))
+(map list-structure?
+     (list (cons 2 '())
+           '()
+           (cons 2 3)
+           3))
+]
+
+Reddit 上有一个帖子：“@hyperlink["https://www.reddit.com/r/lisp/comments/1gd2hrs/why_does_nil_have_to_be_both_an_atom_and_a_list/"]{Why does nil have to be both an atom and a list?}”上面的讨论值得一读。帖子里的楼主认为，空表是一个表却不是序对，有些奇怪。网友讲解为什么这是合理的。
+
+（注意：这个版面不止会讨论 Scheme，还会讨论 Lisp 的其他方言，注意不同方言的不同之处。例如在 Common Lisp 中， @tt{nil} 是一个特殊符号，正如 2.1.1 节脚注所说。Common Lisp 还用 @tt{nil} 表示假值，它不能通过 @tt{if} 测试，而在 Scheme 中并非如此，诸如此类。）
+
+此外，Racket 其实也用一个内置普通变量表示空表，但它叫 @racket[null] ，而非 @racket[nil] 。
+
+@ss-interaction[null]
+
+@subsection[#:tag "mutability of pair"]{序对的可变性}
+
+TODO：循环表，以及不同实现的解释器如何打印它们；Racket 序对的不可变性以及 @racket[list?] 结果被缓存
