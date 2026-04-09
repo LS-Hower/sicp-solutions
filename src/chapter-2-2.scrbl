@@ -47,7 +47,7 @@
 
 @; ----------------------------------------------------------------------
 
-@section{练习 2.18 | 反转一个表}
+@section[#:tag "exercise 2.18"]{练习 2.18 | 反转一个表}
 
 @ss-interaction[
 (define (reverse ls)
@@ -142,3 +142,49 @@
 这里定义了 @racket[boolean-equal?] 过程判断两个布尔值是否相等，它利用了如下事实：两个布尔值相等，当且仅当两者都是真或者两者都是假。原书后面的章节会介绍足够通用的 @racket[equal?] 过程，它对于布尔值也能正确工作。Racket 还自带 @racket[boolean=?] 谓词，专门用于布尔值。
 
 这里还定义了 @racket[filter] 过程，它取一个谓词 @racket[take?] 和一个表 @racket[ls] ，返回一个表，包含的是 @racket[ls] 中所有满足谓词 @racket[take?] 的项。不难感觉到，这个过程比较通用。它在原书正文中的稍后章节就会遇到，之后还会多次用到。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 2.21 | 定义 @racket[square-list] 的两种方式}
+
+@ss-interaction[
+(define (square-list items)
+  (if (null? items)
+      nil
+      (cons (square (car items))
+            (square-list (cdr items)))))
+(square-list (list 1 2 3 4 5))
+(define (square-list items)
+  (map square items))
+(square-list (list 1 2 3 4 5))
+]
+
+正如正文中所说，使用 @racket[map] ，可以“将实现表变换的过程的实现，与如何提取表的元素以及组合结果的细节隔离开”。而在第一种实现中，“程序的递归结构将人的注意力吸引到对于表中逐个元素的处理上。”
+
+@; ----------------------------------------------------------------------
+
+@section{练习 2.22 | 尝试使用迭代计算过程产生表时遇到的问题}
+
+如果要使用常数空间的迭代计算过程，那么就一直只能去处理表的开头部分。
+
+想象一下，在桌面上，面前有几百张纸叠放起来，形成纸堆。你需要将它们全都签上名，但是一次只准搬运一张纸（所以总是只能处理纸堆上最上面的部分），那么只能这样做：
+
+@itemlist[@item{取出最靠上的那张纸；}
+          @item{给这张纸签上名;}
+          @item{将这张纸放在旁边（如果旁边已经有纸了，就叠放在它上方）；}
+          @item{重复上述操作，直至面前没有纸了。}]
+
+可以想到，原本位置靠上的纸，先被签上名，先被放在旁边，结果就位置靠下了。这就是为什么结果反转了。想要让结果重新正起来也很简单，那就是再完整搬运一次。这其实就对应了 @secref["exercise 2.18"] 中产生迭代计算过程的 @racket[reverse] 。
+
+与之类似，在 @racket[items] 内容为 @racket[(1 2 3 4 5)] 的情况下， @racket[iter] 的各次调用中， @racket[things] 和 @racket[answer] 分别是：
+
+@itemlist[@item{@racket[(1 2 3 4 5)] 和 @racket[()] ；}
+          @item{@racket[(2 3 4 5)] 和 @racket[(1)] ；}
+          @item{@racket[(3 4 5)] 和 @racket[(4 1)] ；}
+          @item{@racket[(4 5)] 和 @racket[(9 4 1)] ；}
+          @item{@racket[(5)] 和 @racket[(16 9 4 1)] ；}
+          @item{@racket[()] 和 @racket[(25 16 9 4 1)] ；}]
+
+我们知道，表 @racket[(25 16 9 4 1)] 是通过 @racket[(cons 25 (cons 16 (cons 9 (cons 4 (cons 1 nil)))))] 构造出来的。只把调用 @racket[cons] 时的两个参数交换位置，我们只能得到一个 @racket[(cons (cons (cons (cons (cons nil 1) 4) 9) 16) 25)] 。这甚至不是一个表。而且 @racket[25] 其实也是仍然在最外层。
+
+解决起来其实也不难，刚才就已经说到了：用 @racket[reverse] 过程将结果表反转一下即可。 @racket[reverse] 的迭代计算过程版本在 @secref["exercise 2.18"] 实现了。由于“处理”和“反转”都是迭代计算过程版本，所需步数都是 @${\Theta (n)} （其中 @${n} 是表中项的个数），只需要常数空间，所以组合起来之后所需步数和空间还是这样的。
