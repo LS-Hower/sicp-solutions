@@ -188,3 +188,33 @@
 我们知道，表 @racket[(25 16 9 4 1)] 是通过 @racket[(cons 25 (cons 16 (cons 9 (cons 4 (cons 1 nil)))))] 构造出来的。只把调用 @racket[cons] 时的两个参数交换位置，我们只能得到一个 @racket[(cons (cons (cons (cons (cons nil 1) 4) 9) 16) 25)] 。这甚至不是一个表。而且 @racket[25] 其实也是仍然在最外层。
 
 解决起来其实也不难，刚才就已经说到了：用 @racket[reverse] 过程将结果表反转一下即可。 @racket[reverse] 的迭代计算过程版本在 @secref["exercise 2.18"] 实现了。由于“处理”和“反转”都是迭代计算过程版本，所需步数都是 @${\Theta (n)} （其中 @${n} 是表中项的个数），只需要常数空间，所以组合起来之后所需步数和空间还是这样的。
+@; ----------------------------------------------------------------------
+
+@section{练习 2.23 | @racket[for-each] 过程}
+
+实际上可以偷懒，用 @racket[map] 逃课，如下：
+
+@ss-interaction[
+(define (for-each proc ls)
+  (map proc ls)
+  true)
+(for-each (lambda (x) (newline) (display x))
+          (list 57 321 88))
+]
+
+用 @racket[map] 把过程应用于所有项，然后把整个结果表丢弃掉。
+
+但我们还是自己写一个使用（尾）递归的版本吧：
+
+@ss-interaction[
+(define (for-each proc ls)
+  (cond [(null? ls) true]
+        [else
+         (proc (car ls))
+         (for-each proc (cdr ls))]))
+
+(for-each (lambda (x) (newline) (display x))
+          (list 57 321 88))
+]
+
+这个版本还能产生迭代计算过程，而书中的 @racket[map] 实现并没有。
