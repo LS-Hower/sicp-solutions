@@ -74,3 +74,41 @@
           @item{@racket[()] 和 @racket[(25 16 9 4 1)]；}]
 
 最后返回了 @racket[dest] ，完成计算。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 2.19 | 让兑换零钱的程序更灵活}
+
+书上的新版 @racket[cc] 过程如下：
+
+@ss-interaction[
+(define (cc amount coin-values)
+  (cond ((= amount 0) 1)
+        ((or (< amount 0) (no-more? coin-values)) 0)
+        (else
+         (+ (cc amount
+                (except-first-denomination coin-values))
+            (cc (- amount
+                   (first-denomination coin-values))
+                coin-values)))))
+]
+
+可以看到， @racket[no-more?] 其实就是判断货币类型表是否为空， @racket[first-denomination] 其实就是“选取表的第一项”，而 @racket[except-first-denomination] 就是“选取表中除去第一项之后剩下的所有项形成的子表”，三个操作分别对应 @racket[null?] 、 @racket[car] 和 @racket[cdr] 。
+
+@ss-interaction[
+(define (no-more? coin-values)
+  (null? coin-values))
+(define (first-denomination coin-values)
+  (car coin-values))
+(define (except-first-denomination coin-values)
+  (cdr coin-values))
+]
+
+测试一下：
+
+@ss-interaction[
+(cc 100 (list 50 25 10 5 1))
+]
+
+对比一下 1.2.2 节时写的 @racket[cc] 过程。当时没有表这种数据结构，就只能将五种货币面值硬编码在 @racket[first-denomination] 过程里的 @tt{cond} 中，用一个整数变量 @racket[kinds-of-coins] 来表示考虑的硬币类型数，还要自己数出种类数的初始值 @racket[5] ，还要硬编码在 @racket[count-change] 过程的实现中。有了表，这个程序实现起来更自然、更优美了，代码可读性增强了，灵活性也大大增强了。
+
