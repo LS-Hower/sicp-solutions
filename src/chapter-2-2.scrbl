@@ -354,3 +354,78 @@ x
 这里定义了一个过程 @racket[fold-right] 。以 @racket[(fold-right f x (list a b c))] 为例，它的结果等同于 @racket[(f a (f b (f c x)))] 的结果。它也是相当通用的函数，随后在练习 2.38 附近也会出现。
 
 有了 @racket[fold-right] 函数，我们用一个 @racket[(fold-right append nil fringes-of-subtrees)] ，就可以把多个 @racket[fringe] 的结果拼接起来了。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 2.29 | 二叉活动体}
+
+分为 (a) (b) (c) (d) 四小题。
+
+这里先将书上的 @racket[make-mobile] 和 @racket[make-branch] 定义出来。
+
+@ss-interaction[
+(define (make-mobile left right)
+  (list left right))
+(define (make-branch length structure)
+  (list length structure))
+]
+
+@subsection{小题 2.29 (a)}
+
+从一个表中取出首项需要 @racket[car] ，第二项则是 @racket[cadr] 。注意这与用 @racket[cons] 时的不同。
+
+@ss-interaction[
+(define (left-branch m) (car m))
+(define (right-branch m) (cadr m))
+(define (branch-length b) (car b))
+(define (branch-structure b) (cadr b))
+]
+
+@subsection{小题 2.29 (b)}
+
+我们设计函数，它们能分别求出活动体、分支和结构的总重量。
+
+@ss-interaction[
+(define (simple-weight? x)
+  (not (pair? x)))
+
+(define (total-weight-mobile m)
+  (+ (total-weight-branch (left-branch m))
+     (total-weight-branch (right-branch m))))
+
+(define (total-weight-branch b)
+  (total-weight-structure (branch-structure b)))
+
+(define (total-weight-structure s)
+  (if (simple-weight? s)
+      s
+      (total-weight-mobile s)))
+]
+
+@itemlist[@item{求活动体的重量，依赖于求分支的重量。}
+          @item{求分支的重量，依赖于求结构的重量。}
+          @item{求结构的重量，依赖于求活动体的重量。}]
+
+这并不会造成无限递归，因为我们目前并不会造出循环的数据结构。总会碰到基底情况：结构是一个简单重量。
+
+题上要求求活动体重量的函数要叫 @racket[total-weight] ，我们就照做一下：
+
+@ss-interaction[
+(define (total-weight m)
+  (total-weight-mobile m))
+]
+
+测试一下：
+
+@ss-interaction[
+(define m1 (make-mobile (make-branch 4 6)
+                        (make-branch 3 8)))
+(define m2 (make-mobile (make-branch 3 32)
+                        (make-branch 2 m1)))
+(total-weight m1)
+(total-weight m2)
+]
+
+@; TODO 添加一个示意图
+
+（待续）
