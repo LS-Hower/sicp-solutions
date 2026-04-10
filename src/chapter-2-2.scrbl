@@ -188,6 +188,7 @@
 我们知道，表 @racket[(25 16 9 4 1)] 是通过 @racket[(cons 25 (cons 16 (cons 9 (cons 4 (cons 1 nil)))))] 构造出来的。只把调用 @racket[cons] 时的两个参数交换位置，我们只能得到一个 @racket[(cons (cons (cons (cons (cons nil 1) 4) 9) 16) 25)] 。这甚至不是一个表。而且 @racket[25] 其实也是仍然在最外层。
 
 解决起来其实也不难，刚才就已经说到了：用 @racket[reverse] 过程将结果表反转一下即可。 @racket[reverse] 的迭代计算过程版本在 @secref["exercise 2.18"] 实现了。由于“处理”和“反转”都是迭代计算过程版本，所需步数都是 @${\Theta (n)} （其中 @${n} 是表中项的个数），只需要常数空间，所以组合起来之后所需步数和空间还是这样的。
+
 @; ----------------------------------------------------------------------
 
 @section{练习 2.23 | @racket[for-each] 过程}
@@ -218,3 +219,43 @@
 ]
 
 这个版本还能产生迭代计算过程，而书中的 @racket[map] 实现并没有。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 2.24 | 熟悉层次性结构}
+
+@ss-interaction[(list 1 (list 2 (list 3 4)))]
+
+始终记住：解释器打印一个表的方式是先打印一个左括号，再将各个元素逐个打印出来，再打印右括号。
+
+盒子指针和树的图先欠着。
+
+@; TODO
+
+@; ----------------------------------------------------------------------
+
+@section{练习 2.25 | 从嵌套列表中取元素}
+
+以题中第一个表 @racket[(1 3 (5 7) 9)] 为例：
+
+@itemlist[
+  #:style 'ordered
+  @item{应用 @racket[cdr] ，得到 @racket[(3 (5 7) 9)] ；}
+  @item{应用 @racket[cdr] ，得到 @racket[((5 7) 9)] ；}
+  @item{应用 @racket[car] ，得到 @racket[(5 7)] ；}
+  @item{应用 @racket[cdr] ，得到 @racket[(7)] ；}
+  @item{应用 @racket[car] ，得到 @racket[7] 。}
+]
+
+以下是对三个表的解答：
+
+@ss-interaction[
+(define ls1 (list 1 3 (list 5 7) 9))
+(define ls2 (list (list 7)))
+(define ls3 (list 1 (list 2 (list 3 (list 4 (list 5 (list 6 7)))))))
+(cadr (caddr ls1))
+(car (car ls2))
+(cadr (cadr (cadr (cadr (cadr (cadr ls3))))))
+]
+
+注意，对 @racket[(1 (2 3))] 取 @racket[cdr] 之后只能得到 @racket[((2 3))] ，还需要再取一次 @racket[car] 才能得到 @racket[(2 3)] 。
