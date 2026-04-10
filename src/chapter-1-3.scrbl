@@ -20,7 +20,7 @@
 
 @; ----------------------------------------------------------------------
 
-@section{练习 1.29 | 辛普森积分法}
+@section{练习 1.29 | @racket[simpson-integral] ：辛普森积分法}
 
 @ss-interaction[
 (define (simpson-integral f a b n)
@@ -78,7 +78,7 @@
 
 @; ----------------------------------------------------------------------
 
-@section[#:tag "exercise 1.31"]{练习 1.31 | @racket[product] 过程}
+@section[#:tag "exercise 1.31"]{练习 1.31 | @racket[product] ：多项相乘}
 
 分为 (a) (b) 两小题。
 
@@ -119,7 +119,7 @@
 
 @; ----------------------------------------------------------------------
 
-@section[#:tag "exercise 1.32"]{练习 1.32 | @racket[sum] 与 @racket[product] 的统一（是累积操作，不是取对数）}
+@section[#:tag "exercise 1.32"]{练习 1.32 | @racket[accumulate] ：累积，将 @racket[sum] 与 @racket[product] 推广}
 
 分为 (a) (b) 两小题。
 
@@ -158,7 +158,7 @@
 
 @; ----------------------------------------------------------------------
 
-@section{练习 1.33 | @racket[filtered-accumulate] 过程}
+@section{练习 1.33 | @racket[filtered-accumulate] ：带过滤的累积}
 
 多加一个 @tt{if} 判断：如果 @racket[(term i)] 满足 @racket[take?] 谓词，则进行 @racket[combiner] 运算算出新的 @racket[result] 并在下一次调用 @racket[iter] 时将原本的 @racket[result] 替换掉，否则不替换。
 
@@ -301,7 +301,7 @@
 
 @; ----------------------------------------------------------------------
 
-@section[#:tag "exercise 1.37"]{练习 1.37 | 计算 k 项有限连分式}
+@section[#:tag "exercise 1.37"]{练习 1.37 | @racket[cont-frac] ：计算 k 项有限连分式}
 
 分为 (a) (b) 两小题。
 
@@ -449,7 +449,7 @@ k-2
 
 @; ----------------------------------------------------------------------
 
-@section[#:tag "exercise 1.39"]{练习 1.39 | 连分数算 @${\tan x}}
+@section[#:tag "exercise 1.39"]{练习 1.39 | @racket[tan-cf] ：连分数算 @${\tan x}}
 
 虽然乍一看，这个分式中的加号变成了减号，似乎让我们不得不重写 @racket[cont-frac] 过程，但其实我们完全可以做一个变换：
 
@@ -517,7 +517,7 @@ r
 
 @; ----------------------------------------------------------------------
 
-@section{练习 1.41 | “使过程应用两次程度的能力”}
+@section{练习 1.41 | @racket[double] ：“使过程应用两次程度的能力”}
 
 @ss-interaction[
 (define (double f)
@@ -543,7 +543,7 @@ r
 
 @; ----------------------------------------------------------------------
 
-@section{练习 1.42 | 函数复合}
+@section{练习 1.42 | @racket[compose] ：函数复合}
 
 @ss-interaction[
 (define (compose f g)
@@ -556,7 +556,7 @@ r
 
 @; ----------------------------------------------------------------------
 
-@section[#:tag "exercise 1.43"]{练习 1.43 | 函数迭代}
+@section[#:tag "exercise 1.43"]{练习 1.43 | @racket[repeated] ：函数迭代}
 
 我们先不用 @racket[compose] 过程，而是直接用更传统一些的方法：
 
@@ -631,7 +631,7 @@ r
 
 @; ----------------------------------------------------------------------
 
-@section{练习 1.44 | 函数平滑}
+@section{练习 1.44 | @racket[smooth] ：函数平滑}
 
 @ss-interaction[
 (define (smooth f)
@@ -814,7 +814,7 @@ r
 
 @; ----------------------------------------------------------------------
 
-@section{练习 1.46 | 迭代式改进}
+@section{练习 1.46 | @racket[iterative-improve] ：迭代式改进}
 
 @racket[iterativa-improve] 过程本身实现起来倒是没什么难度。这里不直接写一个 @tt{lambda} 表达式来作为返回值而是使用了内部定义，是因为它需要递归。（不过，练习 4.21 中还真就讲解了如何只用 @tt{lambda} 实现递归，不过这里就先不搞了。）
 
