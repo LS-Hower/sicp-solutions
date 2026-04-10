@@ -279,3 +279,78 @@
 (cons x y)
 (list x y)
 ]
+
+@; ----------------------------------------------------------------------
+
+@section{练习 2.27 | 深反转 @racket[deep-reverse]}
+
+与 @racket[reverse] 的不同之处是，在处理表中元素时，要看一眼元素本身是不是表（是不是序对）。如果是的话，要递归调用 @racket[deep-reverse] 变换一下。
+
+@ss-interaction[
+(define (deep-reverse ls)
+  (define (iter source dest)
+    (if (null? source)
+        dest
+        (let ([head (car source)]
+              [tail (cdr source)])
+          (let ([new-head
+                 (if (pair? head)
+                     (deep-reverse head)
+                     head)])
+            (iter tail (cons new-head dest))))))
+  (iter ls nil))
+(define x (list (list 1 2) (list 3 4)))
+x
+(reverse x)
+(deep-reverse x)
+]
+
+也可以在 @racket[deep-reverse] 的入口处检查参数是否为表，不是的话直接返回。这样，在迭代过程中我们就能随意对每一个表项都调用 @racket[deep-reverse] 了。
+
+@ss-interaction[
+(define (deep-reverse x)
+  (define (iter source dest)
+    (if (null? source)
+        dest
+        (let ([head (car source)]
+              [tail (cdr source)])
+          (iter tail (cons (deep-reverse head) dest)))))
+  (if (pair? x)
+      (iter x nil)
+      x))
+(deep-reverse x)
+]
+
+但这样会使类似于 @racket[(deep-reverse 1)] 这样的调用也能不声不响地返回一个值 @racket[1] ，而我们没有把这样的参数拦下的机会。至于这是不是想要的行为，这就不好说了。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 2.28 | @racket[fringe] ：取出树的全部叶子}
+
+@ss-interaction[
+(define (fold-right f default ls)
+  (if (null? ls)
+      default
+      (f (car ls)
+         (fold-right f default (cdr ls)))))
+(define (fringe x)
+  (if (pair? x)
+      (let ([fringes-of-subtrees (map fringe x)])
+        (fold-right append nil fringes-of-subtrees))
+      (list x)))
+(define x (list (list 1 2) (list 3 4)))
+(fringe x)
+]
+
+@; 在有 2.38 之后，链接指向它
+
+@racket[fringe] 的设计思路如下：
+
+@itemlist[@item{若参数 @racket[x] 是一个叶子而不是树，则直接返回一个表，它只有一项，就是 @racket[x] 本身。（虽然题上说 @racket[fringe] 接收的是表，但考虑这种情况之后会更加自然。）}
+          @item{若参数 @racket[x] 是树，我们就先递归求出它所有子树的 @racket[fringe] ，把这些 @racket[fringe] 的结果表又装在一个表里，起名叫 @racket[fringes-of-subtrees] 。然后要将它们全都拼接起来。比如说， @racket[fringes-of-subtrees] 可能是 @racket[((1 2 3) (4 5 6) (7 8 9 10))] 。拼接之后就能得到 @racket[(1 2 3 4 5 6 7 8 9 10)] 。}]
+
+那么，如何拼接呢？
+
+这里定义了一个过程 @racket[fold-right] 。以 @racket[(fold-right f x (list a b c))] 为例，它的结果等同于 @racket[(f a (f b (f c x)))] 的结果。它也是相当通用的函数，随后在练习 2.38 附近也会出现。
+
+有了 @racket[fold-right] 函数，我们用一个 @racket[(fold-right append nil fringes-of-subtrees)] ，就可以把多个 @racket[fringe] 的结果拼接起来了。
