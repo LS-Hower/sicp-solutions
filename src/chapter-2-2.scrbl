@@ -259,3 +259,23 @@
 ]
 
 注意，对 @racket[(1 (2 3))] 取 @racket[cdr] 之后只能得到 @racket[((2 3))] ，还需要再取一次 @racket[car] 才能得到 @racket[(2 3)] 。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 2.26 | @racket[append] 、 @racket[cons] 和 @racket[list]}
+
+逐个分析。
+
+@itemlist[@item{@racket[append] 取两个表作为参数，将这两个表拼接后得到的新表返回出来。所以对于 @racket[(1 2 3)] 和 @racket[(4 5 6)] ，得到的将是表 @racket[(1 2 3 4 5 6)] 。}
+          @item{@racket[cons] 如果后面那个参数是表，那么会返回一个表，其首项是前一个参数，而后面的项都是从原来那个表中得到的。也就是说，若 @racket[x] 会被打印成 @italic{<s>} ，而 @racket[y] 的内容是 @racket[(4 5 6)] ，那么 @racket[(cons x y)] 的结果将会打印成 @tt{(}@italic{<s>}@tt{ 4 5 6)} 。而我们知道 @italic{<s>} 就是 @racket[(1 2 3)] ，所以最终打印出来的就是 @racket[((1 2 3) 4 5 6)] 。}
+          @item{@racket[list] 取了这两个参数，会返回一个新的表，这个表有两个项，一个会被打印成 @racket[(1 2 3)] ，一个会被打印成 @racket[(4 5 6)] 。回想一下，解释器如何打印一个表：先打印一个左括号“@tt{(}”，再将各个项逐个打印出来，再打印右括号“@tt{)}”。所以打印结果将是 @racket[((1 2 3) (4 5 6))] 。}]
+
+用解释器来验证一下：
+
+@ss-interaction[
+(define x (list 1 2 3))
+(define y (list 4 5 6))
+(append x y)
+(cons x y)
+(list x y)
+]
