@@ -517,7 +517,7 @@ x
 
 @; ----------------------------------------------------------------------
 
-@section{练习 2.30 | @racket[square-tree] ：对树的平方映射}
+@section[#:tag "exercise 2.30"]{练习 2.30 | @racket[square-tree] ：对树的平方映射}
 
 依葫芦画瓢，模仿正文里的 @racket[scale-tree] 即可。
 
@@ -537,5 +537,24 @@ x
              (square-tree sub-tree)
              (square sub-tree)))
        tree))
+(square-tree tree-for-test)
+]
+
+@; ----------------------------------------------------------------------
+
+@section{练习 2.31 | @racket[tree-map] ：对树的一般映射}
+
+甚至只是将 @secref["exercise 2.30"] 代码中的 @racket[square] 改成一般的 @racket[proc] 就可以了。
+
+@ss-interaction[
+(define (tree-map proc tree)
+  (define (mapped tree)
+    (map (lambda (sub-tree)
+           (if (pair? sub-tree)
+               (mapped sub-tree)
+               (proc sub-tree)))
+         tree))
+  (mapped tree))
+(define (square-tree tree) (tree-map square tree))
 (square-tree tree-for-test)
 ]
