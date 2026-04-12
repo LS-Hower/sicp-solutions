@@ -514,3 +514,28 @@ x
 @subsection{小题 2.29 (d)}
 
 得益于抽象屏障，有关活动体和分支如何的实现细节可以和程序中其他程序完全隔离开来，正如原书 2.1.2 节所说的那样。我们只需要更改它们的选择函数即可。获取活动体左分支和分支长度的选择函数刚好一个字都不用改；获取活动体右分支和分支上结构的选择函数则刚好只需要改一个字。将后者实现里的 @racket[cadr] 改成 @racket[cdr] 即可。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 2.30 | @racket[square-tree] ：对树的平方映射}
+
+依葫芦画瓢，模仿正文里的 @racket[scale-tree] 即可。
+
+@ss-interaction[
+(define tree-for-test (list 1
+                            (list 2 (list 3 4) 5)
+                            (list 6 7)))
+(define (square-tree tree)
+  (cond [(null? tree) nil]
+        [(not (pair? tree)) (square tree)]
+        [else (cons (square-tree (car tree))
+                    (square-tree (cdr tree)))]))
+(square-tree tree-for-test)
+(define (square-tree tree)
+  (map (lambda (sub-tree)
+         (if (pair? sub-tree)
+             (square-tree sub-tree)
+             (square sub-tree)))
+       tree))
+(square-tree tree-for-test)
+]
