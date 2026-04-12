@@ -420,12 +420,97 @@ x
 @ss-interaction[
 (define m1 (make-mobile (make-branch 4 6)
                         (make-branch 3 8)))
-(define m2 (make-mobile (make-branch 3 32)
+(define m2 (make-mobile (make-branch 7 4)
+                        (make-branch 2 m1)))
+(define m3 (make-mobile (make-branch 7 5)
                         (make-branch 2 m1)))
 (total-weight m1)
 (total-weight m2)
+(total-weight m3)
 ]
 
 @; TODO 添加一个示意图
 
-（待续）
+@subsection{小题 2.29 (c)}
+
+一种直接的做法是按部就班地定义好各个函数：
+
+@ss-interaction[
+(define (torque-branch b)
+  (* (total-weight-branch b)
+     (branch-length b)))
+
+(define (balanced-mobile? m)
+  (and (balanced-branch? (left-branch m))
+       (balanced-branch? (right-branch m))
+       (= (torque-branch (left-branch m))
+          (torque-branch (right-branch m)))))
+
+(define (balanced-branch? b)
+  (balanced-structure? (branch-structure b)))
+
+(define (balanced-structure? s)
+  (if (simple-weight? s)
+      true
+      (balanced-mobile? s)))
+
+(map balanced-mobile? (list m1 m2 m3))
+]
+
+但这样其实导致了一些重复计算。在 @racket[balanced-mobile?] 过程中，我们先判断了两个分支上的结构是否平衡，而这作出的计算其实已经足以得到两个结构的总重量了（只差两个加法操作）。但我们没能使用这些计算结果，而是又调用了一遍 @racket[torque-branch] ，这需要重新对两个分支上的结构计算总重量。
+
+要定量地分析这会怎样拖慢速度的话，我们考虑一个“满二叉活动体”（类比“满二叉树”） ，深度为 @${d} ，有 @${n} 个简单重量，则有 @${n \approx 2^d} 。设上述的算法处理深度为 @${\Theta(d)} 的满二叉活动体时所需时间为 @${T(d)} ，则有递归式 @${T(d) = 4T(d-1) + \Theta(1)} ，解得 @${T(d) = \Theta(4^d) = \Theta((2^d)^2) = \Theta(n^2)} 。而如果能够使用中间计算结果，则有 @${T'(d) = 2T(d-1) + \Theta(1)} ，解得 @${T'(d) = \Theta(n)} 。
+
+也就是说，如果有 @${n} 个简单重量，那么优化前所需步数是 @${\Theta(n^2)} ，优化后只需 @${\Theta(n)} 步数。
+
+我们来做一下这个优化：
+
+@ss-interaction[
+
+(define (torque-branch-with-weight b weight)
+  (* weight
+     (branch-length b)))
+
+(define (make-stat weight balance)
+  (list weight balance))
+
+(define (weight-stat stat)
+  (car stat))
+
+(define (balance-stat stat)
+  (cadr stat))
+
+(define (stat-mobile m)
+  (let ([lbranch (left-branch m)]
+        [rbranch (right-branch m)])
+    (let ([lstat (stat-branch lbranch)]
+          [rstat (stat-branch rbranch)])
+      (let ([lweight (weight-stat lstat)]
+            [rweight (weight-stat rstat)]
+            [lbalance (balance-stat lstat)]
+            [rbalance (balance-stat rstat)])
+        (make-stat (+ lweight rweight)
+                   (and lbalance
+                        rbalance
+                        (= (torque-branch-with-weight lbranch lweight)
+                           (torque-branch-with-weight rbranch rweight))))))))
+
+(define (stat-branch b)
+  (stat-structure (branch-structure b)))
+
+(define (stat-structure s)
+  (if (simple-weight? s)
+      (make-stat s true)
+      (stat-mobile s)))
+
+(define (fast-balanced-mobile? m)
+  (balance-stat (stat-mobile m)))
+
+(map fast-balanced-mobile? (list m1 m2 m3))
+]
+
+我们将先前对活动体、分支和结构计算总重量的函数 @racket[total-weight-mobile] 、 @racket[total-weight-branch] 和 @racket[total-weight-structure] 作出改造，使它们不止返回总重量，还返回“这个东西是否平衡”。这两个信息打包在一起，称为“状态”对象，在代码中称为 @tt{stat} 。它有构造函数 @racket[make-stat] ，以及选择函数 @racket[weight-stat] 和 @racket[balance-stat] 。改造出来的函数称为 @racket[stat-mobile] 、 @racket[stat-branch] 和 @racket[stat-structure] 。有了 @racket[stat-mobile] ，我们对结果做一个 @racket[balance-stat] ，就能轻松解决问题了。
+
+@subsection{小题 2.29 (d)}
+
+得益于抽象屏障，有关活动体和分支如何的实现细节可以和程序中其他程序完全隔离开来，正如原书 2.1.2 节所说的那样。我们只需要更改它们的选择函数即可。获取活动体左分支和分支长度的选择函数刚好一个字都不用改；获取活动体右分支和分支上结构的选择函数则刚好只需要改一个字。将后者实现里的 @racket[cadr] 改成 @racket[cdr] 即可。
