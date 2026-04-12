@@ -558,3 +558,57 @@ x
 (define (square-tree tree) (tree-map square tree))
 (square-tree tree-for-test)
 ]
+
+@; ----------------------------------------------------------------------
+
+@section{练习 2.32 | @racket[subsets] ：求集合的全部子集}
+
+@ss-interaction[
+(define (subsets s)
+  (if (null? s)
+      (list nil)
+      (let ((rest (subsets (cdr s))))
+        (append rest (map (lambda (subset) (cons (car s) subset))
+                          rest)))))
+(subsets (list 1 2 3))
+]
+
+以 @racket[s] 为 @racket[(1 2 3)] 时为例，上述算法会先求出其 @racket[cdr] ，即 @racket[(2 3)] ，的全部子集，即 @racket[(() (3) (2) (2 3))] 。然后用 @racket[map] 给这 4 个表都添上 @racket[1]（它是刚才被遗弃的 @racket[(car s)] ），又得到了 4 个表 @racket[((1) (1 3) (1 2) (1 2 3))] 。用 @racket[append] 把前面那 4 个表和现在这个 4 表放在一个表里，就得到了 @racket[(() (3) (2) (2 3) (1) (1 3) (1 2) (1 2 3))] 。
+
+为了证明这个算法为什么正确，我们要先明白这个算法求的到底是什么。我们引入数学概念“幂集”（power set）。集合 @${S} 的幂集就是它的所有子集所组成的集合，记为 @${2^S} 。也就是说， @${2^S = \{ T \, | \, T \subseteq S \}} 。例如当 @${S = \{ 1, 2, 3 \}} 时，其幂集 @${2^S = \{ \{\}, \{3\}, \{2\}, \{2, 3\}, \{1\}, \{1, 3\}, \{1, 2\}, \{1, 2, 3\} \} } 。所以刚才这个算法就是一个求集合幂集的算法。
+
+刚才构造性地求集合 @${S} 的幂集 @${2^S} （记为 @${P} ）的算法，是做了分情况讨论：
+
+@itemlist[@item{若 @${S = \varnothing} 是空集，则幂集 @${P} 显然是 @${\{\{\}\}} 。}
+          @item{若 @${S} 不是空集，则我们随意找出它的一个成员 @${e} 。我们记 @${S'} 为 @${S} 除去 @${e} 这个元素所得到的集合，即 @${S' = S \setminus \{ e \} } ，然后递归一下算出它的幂集 @${P' = 2^{S'}} 。这个算法断言：我们要求的幂集 @${P = P' \cup \{ T' \cup \{ e \} \, | \, T' \in P' \} } 。}]
+
+现在证明为什么这个断言是对的。我们要通过证明左边 @${\subseteq} 右边且左边 @${\supseteq} 右边来证明左边 @${=} 右边。
+
+@itemlist[
+  @item{
+    先证左边 @${\subseteq} 右边。取任意 @${A \in P} ，即 @${A \subseteq S} ，有两种情况：
+    @itemlist[@item{若 @${e \notin A} ，则 @${A \subseteq S'} ，则 @${A \in P'} ，它属于右边部分的 @${\cup} 的左边。}
+              @item{若 @${e \in A} ，则我们定义 @${A' = A \setminus \{ e \} } ，则 @${A' \subseteq S'} ，即 @${A' \in P'} 。而 @${A = A \cup \{ x \} } ，故它属于右边部分的 @${\cup} 的右边。}]
+  }
+  @item{
+    再证左边 @${\supseteq} 右边。右边以 @${\cup} 分隔，分为左边和右边：
+    @itemlist[@item{……}
+              @item{……}]
+  }
+]
+
+（TODO：感觉有点不严谨？）
+
+这其实反映了 @${2^{N} = 2^{N-1} + 2^{N-1}} 。我们还可以实现一个 @racket[combinations] 函数。给定一个整数 @racket[k] ，它求出一个长为 @${n} 的列表所表示的集合的全部 @${C_n^k = \dbinom{n}{k}} 种组合。它还能反映 @${\dbinom{n}{k} = \dbinom{n-1}{k-1} + \dbinom{n-1}{k}} 。代码如下：
+
+@ss-interaction[
+(define (combinations s k)
+  (cond [(= k 0) (list nil)]
+        [(= k (length s)) (list s)]
+        [else
+         (append (map (lambda (l)
+                        (cons (car s) l))
+                      (combinations (cdr s) (- k 1)))
+                 (combinations (cdr s) k))]))
+(combinations (list 1 2 3 4 5) 3)
+]
