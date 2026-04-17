@@ -592,12 +592,14 @@ x
   }
   @item{
     再证左边 @${\supseteq} 右边。右边以 @${\cup} 分隔，分为左边和右边：
-    @itemlist[@item{……}
-              @item{……}]
+    @itemlist[@item{TODO}
+              @item{TODO}]
   }
 ]
 
-（TODO：感觉有点不严谨？）
+TODO：感觉有点不严谨？
+
+—— 以下为草稿 ——
 
 这其实反映了 @${2^{N} = 2^{N-1} + 2^{N-1}} 。我们还可以实现一个 @racket[combinations] 函数。给定一个整数 @racket[k] ，它求出一个长为 @${n} 的列表所表示的集合的全部 @${C_n^k = \dbinom{n}{k}} 种组合。它还能反映 @${\dbinom{n}{k} = \dbinom{n-1}{k-1} + \dbinom{n-1}{k}} 。代码如下：
 
