@@ -563,6 +563,10 @@ x
 
 @section{练习 2.32 | @racket[subsets] ：求集合的全部子集}
 
+分为多个小节。
+
+@subsection{代码}
+
 @ss-interaction[
 (define (subsets s)
   (if (null? s)
@@ -575,33 +579,45 @@ x
 
 以 @racket[s] 为 @racket[(1 2 3)] 时为例，上述算法会先求出其 @racket[cdr] ，即 @racket[(2 3)] ，的全部子集，即 @racket[(() (3) (2) (2 3))] 。然后用 @racket[map] 给这 4 个表都添上 @racket[1]（它是刚才被遗弃的 @racket[(car s)] ），又得到了 4 个表 @racket[((1) (1 3) (1 2) (1 2 3))] 。用 @racket[append] 把前面那 4 个表和现在这个 4 表放在一个表里，就得到了 @racket[(() (3) (2) (2 3) (1) (1 3) (1 2) (1 2 3))] 。
 
-为了证明这个算法为什么正确，我们要先明白这个算法求的到底是什么。我们引入数学概念“幂集”（power set）。集合 @${S} 的幂集就是它的所有子集所组成的集合，记为 @${2^S} 。也就是说， @${2^S = \{ T \, | \, T \subseteq S \}} 。例如当 @${S = \{ 1, 2, 3 \}} 时，其幂集 @${2^S = \{ \{\}, \{3\}, \{2\}, \{2, 3\}, \{1\}, \{1, 3\}, \{1, 2\}, \{1, 2, 3\} \} } 。所以刚才这个算法就是一个求集合幂集的算法。
+@subsection{证明}
 
-刚才构造性地求集合 @${S} 的幂集 @${2^S} （记为 @${P} ）的算法，是做了分情况讨论：
+为了证明这个算法为什么正确，我们要先明白这个算法求的到底是什么。我们引入数学概念“幂集”（power set）。集合 @${S} 的幂集就是它的所有子集所组成的集合，记为 @${\mathcal{P}(S)} 。更正式的定义就是 @${\mathcal{P}(S) = \{ T \, | \, T \subseteq S \}} 。例如当 @${S = \{ 1, 2, 3 \}} 时，其幂集 @${\mathcal{P}(S) = \{ \{\}, \{3\}, \{2\}, \{2, 3\}, \{1\}, \{1, 3\}, \{1, 2\}, \{1, 2, 3\} \} } 。所以刚才这个算法就是一个求集合幂集的算法。
 
-@itemlist[@item{若 @${S = \varnothing} 是空集，则幂集 @${P} 显然是 @${\{\{\}\}} 。}
-          @item{若 @${S} 不是空集，则我们随意找出它的一个成员 @${e} 。我们记 @${S'} 为 @${S} 除去 @${e} 这个元素所得到的集合，即 @${S' = S \setminus \{ e \} } ，然后递归一下算出它的幂集 @${P' = 2^{S'}} 。这个算法断言：我们要求的幂集 @${P = P' \cup \{ T' \cup \{ e \} \, | \, T' \in P' \} } 。}]
+刚才构造性地求集合 @${S} 的幂集 @${\mathcal{P}(S)} 的算法，是做了分情况讨论：
 
-现在证明为什么这个断言是对的。我们要通过证明左边 @${\subseteq} 右边且左边 @${\supseteq} 右边来证明左边 @${=} 右边。
+@itemlist[@item{若 @${S = \varnothing} 是空集，则幂集 @${\mathcal{P}(S)} 显然是 @${\{\{\}\}} 。}
+          @item{若 @${S} 不是空集，则我们随意找出它的一个成员 @${e} （在代码里选择了列表的首个元素，使用 @racket[car] ）。我们记 @${S'} 为 @${S} 除去 @${e} 这个元素所得到的集合，即 @${S' = S \setminus \{ e \} } ，然后递归一下算出它的幂集 @${\mathcal{P}(S')} 。这个算法断言：我们要求的幂集 @${\mathcal{P}(S) = \mathcal{P}(S') \cup \{ T' \cup \{ e \} \, | \, T' \in \mathcal{P}(S') \} } ，且其中出现的两个 @${\cup} 操作，它们都满足：左右两个集合不重叠（所以才用了 @racket[cons] 和 @racket[append] 来合并。）}]
+
+两个 @${\cup} 左右不重叠是比较显然的，我们只证明一下为什么这个断言中的等式：
+
+@$${\mathcal{P}(S) = \mathcal{P}(S') \cup \{ T' \cup \{ e \} \, | \, T' \in \mathcal{P}(S') \} }
+
+是对的。我们将等式左侧称为 @${\text{LHS}} ，右边称为 @${\text{RHS}} 。我们要通过证明 @${\text{LHS} \subseteq \text{RHS}} 及 @${\text{LHS} \supseteq \text{RHS}} 来证明 @${\text{LHS} = \text{RHS}} 。
 
 @itemlist[
   @item{
-    先证左边 @${\subseteq} 右边。取任意 @${A \in P} ，即 @${A \subseteq S} ，有两种情况：
-    @itemlist[@item{若 @${e \notin A} ，则 @${A \subseteq S'} ，则 @${A \in P'} ，它属于右边部分的 @${\cup} 的左边。}
-              @item{若 @${e \in A} ，则我们定义 @${A' = A \setminus \{ e \} } ，则 @${A' \subseteq S'} ，即 @${A' \in P'} 。而 @${A = A \cup \{ x \} } ，故它属于右边部分的 @${\cup} 的右边。}]
+    先证 @${\text{LHS} \subseteq \text{RHS}} 。取任意 @${A \in \mathcal{P}(S)} ，即 @${A \subseteq S} ，有两种情况：
+    @itemlist[
+      @item{若 @${e \notin A} ，则 @${A \subseteq S'} ，则 @${A \in \mathcal{P}(S')} ，它属于 @${\text{RHS}} 中的 @${\cup} 的左边。}
+      @item{若 @${e \in A} ，则我们定义 @${A' = A \setminus \{ e \} } ，则 @${A' \subseteq S'} ，即 @${A' \in \mathcal{P}(S')} 。而 @${A = A' \cup \{ e \} } ，故它属于 @${\text{RHS}} 中的 @${\cup} 的右边。}
+    ]
   }
   @item{
-    再证左边 @${\supseteq} 右边。右边以 @${\cup} 分隔，分为左边和右边：
-    @itemlist[@item{TODO}
-              @item{TODO}]
+    再证 @${\text{LHS} \supseteq \text{RHS}} 。这个 @${\text{RHS}} 可以以 @${\cup} 分隔，分为左边 @${\mathcal{P}(S')} 和右边 @${ \{ T' \cup \{ e \} \, | \, T' \in \mathcal{P}(S') \} } 。
+    @itemlist[
+      @item{对于左边，取任意 @${A \in \mathcal{P}(S')} ，则 @${A \subseteq S'} ，则 @${A \subseteq S} ，则 @${A \in \mathcal{P}(S)} 。}
+      @item{对于右边，由于 @${T' \in \mathcal{P}(S')} ，故 @${T' \subseteq S'} ，则 @${T' \subseteq S} ，则 @${T' \cup \{ e \} \subseteq S} ，即 @${T' \cup \{ e \} \in \mathcal{P}(S)} 。}
+    ]
   }
 ]
 
-TODO：感觉有点不严谨？
+据此，我们证明了，对于非空集合，这个分治构造的定义确实和幂集的定义等价，这个等式是成立的。
 
-—— 以下为草稿 ——
+@subsection{一个求全部组合的算法}
 
-这其实反映了 @${2^{N} = 2^{N-1} + 2^{N-1}} 。我们还可以实现一个 @racket[combinations] 函数。给定一个整数 @racket[k] ，它求出一个长为 @${n} 的列表所表示的集合的全部 @${C_n^k = \dbinom{n}{k}} 种组合。它还能反映 @${\dbinom{n}{k} = \dbinom{n-1}{k-1} + \dbinom{n-1}{k}} 。代码如下：
+给定一个整数 @${k} ，和一个集合 @${S} ，它有 @${n} 个元素。从 @${S} 中取出 @${k} 个元素形成一个集合（所以这 @${k} 个元素的顺序是不重要的），我们在这里将其称为一个组合。例如，当 @${S = \{ 1, 2, 3, 4, 5 \} } 且 @${k = 3} 时， @${ \{ 1, 3, 4 \} } 就是一个组合。选出组合的总方法数称为组合数，记为 @${C_n^k} ，也记为 @${\dbinom{n}{k}} 。
+
+我们可以实现一个 @racket[combinations] 函数，将 @${\dbinom{n}{k}} 个组合全部列出。代码如下：
 
 @ss-interaction[
 (define (combinations s k)
@@ -614,3 +630,49 @@ TODO：感觉有点不严谨？
                  (combinations (cdr s) k))]))
 (combinations (list 1 2 3 4 5) 3)
 ]
+
+这里的思想仍然是递归和分治。我们想要得到 @${S} 的所有 @${\dbinom{n}{k}} 种组合，只需分三种情况：
+
+@itemlist[@item{若 @${k = 0} ，则只有一种选择方法，就是什么都不选，结果显然是 @${\{\{\}\}} 。}
+          @item{若 @${k = n} ，则还是只有一种选择方法，就是把 @${S} 的所有元素全都选上，结果显然是 @${\{ S \}} 。}
+          @item{否则，我们随意找出 @${S} 的一个成员 @${e} （在代码里选择了列表的首个元素，使用 @racket[car] ）。我们记 @${S'} 为 @${S} 除去 @${e} 这个元素所得到的集合，即 @${S' = S \setminus \{ e \} } 。我们先求出在 @${S'} 中取 @${k-1} 个元素形成组合的所有方式，然后给它们都添上 @${e} 。我们还求出在 @${S'} 中取 @${k} 个元素形成组合的所有方式。把它们放在一起，就是结果。}]
+
+直观上，我们如果关注着集合 @${S} 中的一个元素 @${e} ，现在又要从这个集合中取 @${k} 个元素作为一个组合，那么这个 @${e} 要么在组合里，要么不在组合里。如果在的话，我们就只用考虑在剩下的 @${n-1} 的元素里怎么选出 @${k-1} 个，最后只需把这个 @${e} 加回来即可；如果不在的话，我们就只用考虑在剩下的 @${n-1} 个元素里怎么选出 @${k} 个，最后甚至也不用添回来。
+
+@subsection{一个只求组合数的算法：对组合数递推公式的证明}
+
+如果我们不关注具体的方法，而只关注方法数，那么代码可以简化。我们可以得到 @racket[combination-count] 过程，它只给出在有 @${n} 个元素的集合中取出 @${k} 个元素形成组合的方法总数，也就是 @${\dbinom{n}{k}} ：
+
+@ss-interaction[
+(define (combination-count n k)
+  (cond [(= k 0) 1]
+        [(= k n) 1]
+        [else
+         (+ (combination-count (- n 1) (- k 1))
+            (combination-count (- n 1) k))]))
+(combination-count 5 3)
+]
+
+我们无需再将 @racket[s] 的具体内容传进去，只需要传入元素个数 @racket[n] ；在 @racket[k] 等于 @racket[0] 或者 @racket[n] 时，原本的“列出这一个方法”改成了“给出 @racket[1] ”；原本的 @racket[(cdr s)] 变成了 @racket[(- n 1)] ；原本对具体方法的列表的 @racket[append] 变成了对方法数量的 @racket[+] 。
+
+可以发现，代码里其实出现了组合数著名的递推公式：
+
+@$${\dbinom{n}{k} = \dbinom{n-1}{k-1} + \dbinom{n-1}{k}}
+
+而事实上，刚才的思路确实构成对这个公式的证明。
+
+@subsection{一个只求子集个数的算法：对子集个数公式的证明}
+
+如果将类似的想法套在求幂集的算法上，我们能得到什么呢？
+
+@ss-interaction[
+(define (subset-count n)
+  (if (= n 0)
+      1
+      (* 2 (subset-count (- n 1)))))
+(subset-count 5)
+]
+
+空集只有 @${1} 个子集。而有 @${n} 个元素的集合，它的子集个数，是有 @${n-1} 个元素的集合的子集个数的 @${2} 倍。从上述的前提出发，用数学归纳法，就能轻松证明： @bold{有 @${n} 个元素的集合，其子集个数为 @${2^n} 。}
+
+（TODO：研究为什么这样取 car cdr 以及那样 append 会生成“最自然”的结果顺序）
