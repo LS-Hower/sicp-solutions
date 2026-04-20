@@ -32,7 +32,14 @@
 
 @; @url["https://try.scheme.org/"] 有点难看了，而且 @url["try.scheme.org"] 行为也不正确。
 
-各种 Scheme 实现都基本遵循（至少一些版本的）Scheme 标准，所以都能运行书中绝大多数代码。虽然偶尔会有不同行为，但这类问题一般都不难解决。例如，在 Racket 语言中， @racket[cons] 所生成的序对是不可变的，不能对它们使用 @racket[set-car!] 和 @racket[set-cdr!] 。要解决这一问题，可以使用 Racket 里专门的可变序对类型。还有更简单的方式：在源代码首行用 @tt{#lang r5rs} 指定使用 R5RS 标准 Scheme 语言，这样书上的 @racket[set-car!] 和 @racket[set-cdr!] 就都可以正常使用了。（@hyperlink["./additional-lisp.html"]{补充的 Lisp 知识} 页面对序对不可变性有更详细的讲解。）
+各种 Scheme 实现都基本遵循（至少一些版本的）Scheme 标准，所以都能运行书中绝大多数代码。虽然偶尔会有不同行为，但这类问题一般都不难解决。
+
+例如，在 Racket 语言中， @racket[cons] 所生成的序对是不可变的，不能对它们使用 @racket[set-car!] 和 @racket[set-cdr!] 。要解决这一问题，可以：
+
+@itemlist[@item{使用 @hyperlink["https://docs.racket-lang.org/reference/mpairs.html"]{Racket 里专门的可变序对类型} 。}
+          @item{用更简单的方法：在源代码首行用 @tt{#lang r5rs} 指定使用 @hyperlink["https://docs.racket-lang.org/r5rs/index.html"]{Racket 中 Scheme 的 R5RS 方言} ，这样书上的 @racket[set-car!] 和 @racket[set-cdr!] 就都可以正常使用了。}]
+
+@hyperlink["./additional-lisp.html"]{补充的 Lisp 知识} 页面对序对不可变性也有更详细的讲解。
 
 @; ----------------------------------------------------------------------
 
