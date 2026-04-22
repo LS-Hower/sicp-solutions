@@ -742,3 +742,35 @@ x
   (accumulate (lambda (x y) (+ 1 y)) 0 sequence))
 (length (list 6 7 8 9 10))
 ]
+
+@; ----------------------------------------------------------------------
+
+@section{练习 2.34 | @racket[horner-eval] ：线性步数求多项式值}
+
+@ss-interaction[
+(define (horner-eval x coefficient-sequence)
+  (accumulate (lambda (this-coeff higher-terms) (+ this-coeff (* x higher-terms)))
+              0
+              coefficient-sequence))
+(horner-eval 2 (list 1 3 0 5 0 1))
+]
+
+其实不用 @racket[accumulate] 而是手写递归也比较有意思：
+
+@ss-interaction[
+(define (horner-eval x coefficient-sequence)
+  (if (null? coefficient-sequence)
+      0
+      (+ (car coefficient-sequence)
+         (* x (horner-eval x (cdr coefficient-sequence))))))
+(horner-eval 2 (list 1 3 0 5 0 1))
+]
+
+意思是：
+
+@$${
+  \begin{align*}
+  a_0 + a_1 x + a_2 x^2 + \cdots + a_n x^n &= a_0 + x (a_1 + a_2 x + \cdots + a_n x^{n-1})  \\
+                                           &= a_0 + x (b_0 + b_1 x + \cdots + b_{n-1} x^{n-1})
+  \end{align*}
+}
