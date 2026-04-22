@@ -712,3 +712,33 @@ x
 刚好是按照字典序排列的，只要原本的列表已经有序了。证明方法和刚才差不多，对于首个元素 @racket[(car s)] ，我们先让它出现在某些结果的开头，再让它不出现在其他一些结果中，前者比后者先在最终的答案里出现。
 
 @racket[combinations] 函数并不基于比较，而是基于位置。即使传入的列表不是有序的，结果列表中的结果在映射到它们在原列表中的位置之后，结果列表也构成从小到大的字典序。
+
+@; ----------------------------------------------------------------------
+
+@section{练习 2.33 | 基本的表操作也可以用 @racket[accumulate] 表达}
+
+我们需要更清晰地了解一下这个 @racket[accumulate] 。比如 @racket[(accumulate f init (list 1 2 3 4))] 计算的是 @racket[(f 1 (f 2 (f 3 (f 4 init))))] ，以此类推。所以，当 @racket[f] 是 @racket[cons] 且 @racket[init] 是 @racket[nil] 时，它就会返回表，而且内容仍是 @racket[(1 2 3 4)] 。
+
+对于 @racket[map] ，我们让 @racket[cons] 仍然能生成序对，但是会把第一操作数修改一下，用 @racket[p] 修改，这样结果的表的每一项就都是用 @racket[p] 映射过的了。
+
+@ss-interaction[
+(define (map p sequence)
+  (accumulate (lambda (x y) (cons (p x) y)) nil sequence))
+(map square (list 1 2 3 4 5))
+]
+
+对于 @racket[append] ，我们把 @racket[nil] 换成 @racket[seq2] ，这样就把 @racket[seq2] 接到 @racket[seq1] 的后面了。
+
+@ss-interaction[
+(define (append seq1 seq2)
+  (accumulate cons seq2 seq1))
+(append (list 1 2 3 4 5) (list 6 7 8 9 10))
+]
+
+对于 @racket[length] ，我们只需利用一个如下事实： @racket[p] 被调用的次数刚好和列表长度相等。我们也并不需要读取列表中各项的内容。
+
+@ss-interaction[
+(define (length sequence)
+  (accumulate (lambda (x y) (+ 1 y)) 0 sequence))
+(length (list 6 7 8 9 10))
+]

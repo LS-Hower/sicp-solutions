@@ -242,6 +242,14 @@
 
 (define nil '()) ; Racket 有变量 null 表示空表。见“补充的 Lisp 知识”一页。
 
+; -------- 2.2.3 --------
+
+(define (accumulate op initial sequence)
+  (if (null? sequence)
+      initial
+      (op (car sequence)
+          (accumulate op initial (cdr sequence)))))
+
 ; -------- end --------
 
 (provide (all-defined-out))
