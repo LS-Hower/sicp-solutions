@@ -325,7 +325,7 @@ x
 
 @; ----------------------------------------------------------------------
 
-@section{练习 2.28 | @racket[fringe] ：取出树的全部叶子}
+@section[#:tag "exercise 2.28"]{练习 2.28 | @racket[fringe] ：取出树的全部叶子}
 
 @ss-interaction[
 (define (fold-right f default ls)
@@ -774,3 +774,26 @@ x
                                            &= a_0 + x (b_0 + b_1 x + \cdots + b_{n-1} x^{n-1})
   \end{align*}
 }
+
+@; ----------------------------------------------------------------------
+
+@section{练习 2.35 | 用 @racket[accumulate] 重新定义 @racket[count-leaves]}
+
+和 @secref["exercise 2.28"] 相似。其实在那里，我们定义的 @racket[fold-right] 和 @racket[accumulate] 就是同一个东西。练习 2.38 也有提到。
+
+@; 在有 2.38 之后，链接指向它
+
+与之不同的是，我们将使用 @racket[+] 和 @racket[0] 而非 @racket[cons] 和 @racket[nil] ，因为在这里我们不需要用表把叶子们的实际内容记下来，而是只需要记长度。
+
+@ss-interaction[
+(define (count-leaves x)
+  (cond [(null? x) 0]
+        [(pair? x)
+         (let ([leaf-counts-of-subtrees (map count-leaves x)])
+           (accumulate + 0 leaf-counts-of-subtrees))]
+        [else 1]))
+(define x (list (list 1 2) (list 3 nil (list 4 5 6))))
+x
+(count-leaves x)
+]
+
