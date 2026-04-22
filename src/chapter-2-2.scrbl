@@ -334,11 +334,13 @@ x
       (f (car ls)
          (fold-right f default (cdr ls)))))
 (define (fringe x)
-  (if (pair? x)
-      (let ([fringes-of-subtrees (map fringe x)])
-        (fold-right append nil fringes-of-subtrees))
-      (list x)))
-(define x (list (list 1 2) (list 3 4)))
+  (cond [(null? x) nil]
+        [(pair? x)
+         (let ([fringes-of-subtrees (map fringe x)])
+           (fold-right append nil fringes-of-subtrees))]
+        [else (list x)]))
+(define x (list (list 1 2) (list 3 nil (list 4 5 6))))
+x
 (fringe x)
 ]
 
@@ -346,7 +348,8 @@ x
 
 @racket[fringe] 的设计思路如下：
 
-@itemlist[@item{若参数 @racket[x] 是一个叶子而不是树，则直接返回一个表，它只有一项，就是 @racket[x] 本身。（虽然题上说 @racket[fringe] 接收的是表，但考虑这种情况之后会更加自然。）}
+@itemlist[@item{若参数 @racket[x] 是一个空表，则直接返回空表。}
+          @item{若参数 @racket[x] 是一个叶子而不是树，则直接返回一个表，它只有一项，就是 @racket[x] 本身。（虽然题上说 @racket[fringe] 接收的是表，但考虑这种情况之后会更加自然。）}
           @item{若参数 @racket[x] 是树，我们就先递归求出它所有子树的 @racket[fringe] ，把这些 @racket[fringe] 的结果表又装在一个表里，起名叫 @racket[fringes-of-subtrees] 。然后要将它们全都拼接起来。比如说， @racket[fringes-of-subtrees] 可能是 @racket[((1 2 3) (4 5 6) (7 8 9 10))] 。拼接之后就能得到 @racket[(1 2 3 4 5 6 7 8 9 10)] 。}]
 
 那么，如何拼接呢？
