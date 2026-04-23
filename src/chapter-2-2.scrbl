@@ -778,6 +778,70 @@ x
   \end{align*}
 }
 
+上边的都产生递归计算过程，下面写一个迭代计算过程的：
+
+@ss-interaction[
+(define (horner-eval x coefficient-sequence)
+  (define (iter result rest-coefficient)
+    (if (null? rest-coefficient)
+        result
+        (iter (+ (* x result) (car rest-coefficient))
+              (cdr rest-coefficient))))
+  (iter 0 (reverse coefficient-sequence)))
+(horner-eval 2 (list 1 3 0 5 0 1))
+]
+
+不变量是：每次调用 @racket[(iter result ls)] 时，都满足
+
+@itemlist[@item{@racket[ls] 所表示的多项式（这里和题中的相反，首项是最高次系数，最后一项是 0 次系数）在 @racket[x] 处的值，以及}
+          @item{@racket[result] 与 @${x^n} 之积（其中 @racket[n] 是 @racket[ls] 中项的数量）}]
+
+之和不变，而且等于最终要计算出的值。这样一来，原本的系数列表中， @${n} 次项系数刚好会与 @racket[x] 相乘 @${n} 次。
+
+上边的版本使用了 @racket[reverse] 。 @racket[reverse] 可以实现成产生迭代过程的版本，所以上述算法只需常数额外空间。
+
+再写一个不需要 @racket[reverse] 的版本：
+
+@ss-interaction[
+(define (horner-eval x coefficient-sequence)
+  (define (iter result i x-power rest-coefficient)
+    (if (null? rest-coefficient)
+        result
+        (iter (+ result (* x-power (car rest-coefficient)))
+              (+ i 1)
+              (* x x-power)
+              (cdr rest-coefficient))))
+  (iter 0 0 1 coefficient-sequence))
+(horner-eval 2 (list 1 3 0 5 0 1))
+]
+
+不变量是：每次调用 @racket[(iter result x-power ls)] 时，都满足 @racket[x-power] 等于 @${x^i} ，以及
+
+@itemlist[@item{@racket[ls] 所表示的多项式（这里和题中的不一样，首项是 @${i} 次系数，最后一项是最高次系数）在 @racket[x] 处的值，以及}
+          @item{@racket[result]}]
+
+之和不变，而且等于最终要计算出的值。
+
+这里显式地将 @racket[i] 作为参数，只是为了方便描述不变量。这个参数其实是多余的，可以去掉。
+
+上述算法也只需常数额外空间。
+
+书中也提到：“这一规则是 W@._ G@._ Horner 在 19 世纪早期提出的，但这一方法在 100 多年前就已经被牛顿实际使用了。”但这个算法的历史远不止于此。它还有一个名字叫秦九韶算法。
+
+中文维基百科上的 @hyperlink["https://zh.wikipedia.org/wiki/%E7%A7%A6%E4%B9%9D%E9%9F%B6%E7%AE%97%E6%B3%95#%E5%8E%86%E5%8F%B2"]{秦九韶算法#历史} 列出了一些比 Horner 更早的发现者：
+
+@itemlist[@item{1809年，保罗·鲁菲尼}
+          @item{1669年，艾萨克·牛顿（但缺乏详细引文）}
+          @item{14世纪，中国数学家朱世杰}
+          @item{13世纪，中国数学家秦九韶在《数书九章》中}
+          @item{12世纪，波斯的伊斯兰数学家萨拉夫·丁·图西}
+          @item{11世纪（宋朝），中国数学家贾宪}
+          @item{汉朝（公元前202到公元220年），刘徽所注的《九章算术》中}]
+
+（其中最后一条所引用的参考资料可能不可靠。）
+
+（复制时间：2026-04-23）
+
 @; ----------------------------------------------------------------------
 
 @section{练习 2.35 | 用 @racket[accumulate] 重新定义 @racket[count-leaves]}
