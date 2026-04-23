@@ -866,7 +866,7 @@ x
 
 @; ----------------------------------------------------------------------
 
-@section{练习 2.35 | @racket[accumulate-n] ：差不多是个可变参数版本 @racket[accumulate]}
+@section{练习 2.36 | @racket[accumulate-n] ：差不多是个可变参数版本 @racket[accumulate]}
 
 分为多个小节。
 
