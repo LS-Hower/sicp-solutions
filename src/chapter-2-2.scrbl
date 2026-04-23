@@ -883,6 +883,8 @@ x
 (accumulate-n cons nil data)
 ]
 
+注意到 @racket[(accumulate-n cons nil data)] 会让 @racket[data] 的行变成列、列变成行，就像矩阵转置一样。紧接着的 @secref["exercise 2.37"] 就要我们实现矩阵转置操作 @racket[transpose] ，方法其实就是这样。在那里也有更详细的讲解。
+
 @subsection{为什么并非真正的变参 @racket[accumulate]}
 
 需要注意的是，例如生成 @racket[22] ， @racket[accumulate-n] 并不是通过计算 @racket[(+ 1 4 7 10)] 生成的，而是做了相当于 @racket[(accumulate + 0 (list 1 4 7 10))] ，也就是 @racket[(+ 1 (+ 4 (+ 7 (+ 10 0))))] 的计算。要想拿着 @racket[(list 1 4 7 10)] 计算 @racket[(+ 1 4 7 10)] ，需要使用后面章节所使用的 @racket[apply] 函数（见 2.4.3 节中的脚注）：
@@ -932,4 +934,151 @@ x
       (cons (apply f (map1 car seqs))
             (apply map (cons f (map1 cdr seqs))))))
 (map + (list 1 2 3) (list 40 50 60) (list 700 800 900))
+]
+
+此外，这也方便了下一题 @secref["exercise 2.37"] 中 @racket[dot-product] 的实现。
+
+@; ----------------------------------------------------------------------
+
+@section[#:tag "exercise 2.37"]{练习 2.37 | 矩阵与向量操作}
+
+先定义一些测试数据：
+
+@ss-interaction[
+(define v (list 1 2 3))
+(define w (list 4 5 6))
+(define A
+  (list (list 1 2 3 4)
+        (list 5 6 7 8)))
+(define B
+  (list (list 1 2 3)
+        (list 4 5 6)
+        (list 7 8 9)
+        (list 10 11 12)))
+]
+
+@${n} 维向量 @${v} 与 @${n} 维向量 @${w} 做点积，会得到一个数。计算方法其实就是：将两个向量中位置相同的数相乘，再将得到的 @${n} 个积相加。也就是说，
+
+@$${
+  \begin{bmatrix}
+    v_1 \\ v_2 \\ \vdots \\ v_n
+  \end{bmatrix}
+  \cdot
+  \begin{bmatrix}
+    w_1 \\ w_2 \\ \vdots \\ w_n
+  \end{bmatrix}
+  =
+  v_1 w_1 + v_2 w_2 + \cdots + v_n w_n
+}
+
+下文中的向量点乘可能会接收到行向量，此时将其转置变成列向量即可。
+
+因此可以用变参版本 @racket[map] 和 @racket[accumulate] 实现点积操作：
+
+@ss-interaction[
+(define (dot-product v w)
+  (accumulate + 0 (map * v w)))
+v
+w
+(dot-product v w)
+]
+
+@${m \times n} 矩阵 @${A} 与一个 @${n} 维列向量 @${v} 相乘，会得到一个 @${m} 维向量。计算方法其实就是：将矩阵的 @${m} 个行都作为向量看待，并让它们各自和 @${v} 做点积，得到的 @${m} 个数组成 @${m} 维向量，这就是结果。也就是说，
+
+@$${
+  \begin{bmatrix}
+    A_{1*} \\ A_{2*} \\ \vdots \\ A_{m*}
+  \end{bmatrix}
+  \cdot v =
+  \begin{bmatrix}
+    A_{1*} \cdot v  \\
+    A_{2*} \cdot v  \\
+    \vdots          \\
+    A_{m*} \cdot v
+  \end{bmatrix}
+}
+
+在这里， @${A} 的第 @${i} 行记为 @${A_{i*}} 。
+
+因此可以用 @racket[map] 配合 @racket[dot-product] 实现矩阵与向量的乘法：
+
+@ss-interaction[
+(define (matrix-*-vector m v)
+  (map (lambda (row) (dot-product row v)) m))
+B
+v
+(matrix-*-vector B v)
+]
+
+矩阵转置将矩阵的行变成列，列变成行。 @racket[accumulate-n] 会先对各个行的首个元素做 @racket[accumulate] ，再对各个行的第二个元素做 @racket[accumulate] ……最后将结果做成一个表返回。如果将“各个行的首个元素”组合成表，这个表的内容就是原矩阵的第一列了，以此类推。因此可以用 @racket[accumulate-n] ，传入 @racket[cons] 和 @racket[nil] ，实现矩阵转置操作。
+
+@ss-interaction[
+(define (transpose mat)
+  (accumulate-n cons nil mat))
+B
+(transpose B)
+]
+
+@${m \times n} 矩阵 @${A} 与一个 @${n \times k} 矩阵 @${B} 相乘，会得到一个 @${m \times k} 矩阵。计算方法其实就是：将 @${A} 的 @${m} 个行与 @${B} 的 @${k} 个列分别做点积，第 @${i} 个行与第 @${j} 个列的点积就是结果矩阵中第 @${i} 行第 @${j} 列的数。也就是说，
+
+@$${
+  \begin{bmatrix}
+    A_{1*} \\ A_{2*} \\ \vdots \\ A_{m*}
+  \end{bmatrix}
+  \cdot
+  \begin{bmatrix}
+    B_{*1} & B_{*2} & \cdots & B_{*k}
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+    A_{1*} \cdot B_{*1} & A_{1*} \cdot B_{*2} & \cdots & A_{1*} \cdot B_{*k}  \\
+    A_{2*} \cdot B_{*1} & A_{2*} \cdot B_{*2} & \cdots & A_{2*} \cdot B_{*k}  \\
+           \vdots       &        \vdots       & \ddots &        \vdots        \\
+    A_{m*} \cdot B_{*1} & A_{m*} \cdot B_{*2} & \cdots & A_{m*} \cdot B_{*k}
+  \end{bmatrix}
+}
+
+我们发现，结果矩阵的第 @${i} 行其实可以表示成 @${B} 的转置 @${B^{\mathrm{T}}} 与 @${A} 的第 @${i} 行做点积：
+
+@$${
+  B^{\mathrm{T}} \cdot A_{i*}
+  =
+  \begin{bmatrix}
+    {B_{*1}}^{\mathrm{T}} \\ {B_{*2}}^{\mathrm{T}} \\ \vdots \\ {B_{*k}}^{\mathrm{T}}
+  \end{bmatrix}
+  \cdot
+  A_{i*}
+  =
+  \begin{bmatrix}
+    A_{i*} \cdot B_{*1} & A_{i*} \cdot B_{*2} & \cdots & A_{i*} \cdot B_{*k}
+  \end{bmatrix}
+}
+
+所以矩阵乘法的结果可以重写一下：
+
+@$${
+  \begin{bmatrix}
+    A_{1*} \cdot B_{*1} & A_{1*} \cdot B_{*2} & \cdots & A_{1*} \cdot B_{*k}  \\
+    A_{2*} \cdot B_{*1} & A_{2*} \cdot B_{*2} & \cdots & A_{2*} \cdot B_{*k}  \\
+           \vdots       &        \vdots       & \ddots &        \vdots        \\
+    A_{m*} \cdot B_{*1} & A_{m*} \cdot B_{*2} & \cdots & A_{m*} \cdot B_{*k}
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+    B^{\mathrm{T}} \cdot A_{1*}  \\
+    B^{\mathrm{T}} \cdot A_{2*}  \\
+                   \vdots        \\
+    B^{\mathrm{T}} \cdot A_{k*}  \\
+  \end{bmatrix}
+}
+
+因此可以用 @racket[transpose] 、 @racket[map] 和 @racket[matrix-*-vector] 实现矩阵相乘操作：
+
+@ss-interaction[
+(define (matrix-*-matrix m n)
+  (let ((cols (transpose n)))
+    (map (lambda (row) (matrix-*-vector cols row)) m)))
+A
+B
+(matrix-*-matrix A B)
 ]
