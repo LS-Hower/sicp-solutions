@@ -114,7 +114,7 @@
 
 @; ----------------------------------------------------------------------
 
-@section{练习 2.20 | 用带点尾部记法接收任意多个参数，以及 @racket[same-parity]}
+@section[#:tag "exercise 2.20"]{练习 2.20 | 用带点尾部记法接收任意多个参数，以及 @racket[same-parity]}
 
 @ss-interaction[
 (define (boolean-equal? a b)
@@ -568,7 +568,7 @@ x
 
 分为多个小节。
 
-@subsection{代码}
+@subsection{@racket[subsets] 的代码}
 
 @ss-interaction[
 (define (subsets s)
@@ -864,3 +864,72 @@ x
 (count-leaves x)
 ]
 
+@; ----------------------------------------------------------------------
+
+@section{练习 2.35 | @racket[accumulate-n] ：差不多是个可变参数版本 @racket[accumulate]}
+
+分为多个小节。
+
+@subsection{@racket[accumulate-n] 的代码}
+
+@ss-interaction[
+(define (accumulate-n op init seqs)
+  (if (null? (car seqs))
+      nil
+      (cons (accumulate op init (map car seqs))
+            (accumulate-n op init (map cdr seqs)))))
+(define data (list (list 1 2 3) (list 4 5 6) (list 7 8 9) (list 10 11 12)))
+(accumulate-n + 0 data)
+(accumulate-n cons nil data)
+]
+
+@subsection{为什么并非真正的变参 @racket[accumulate]}
+
+需要注意的是，例如生成 @racket[22] ， @racket[accumulate-n] 并不是通过计算 @racket[(+ 1 4 7 10)] 生成的，而是做了相当于 @racket[(accumulate + 0 (list 1 4 7 10))] ，也就是 @racket[(+ 1 (+ 4 (+ 7 (+ 10 0))))] 的计算。要想拿着 @racket[(list 1 4 7 10)] 计算 @racket[(+ 1 4 7 10)] ，需要使用后面章节所使用的 @racket[apply] 函数（见 2.4.3 节中的脚注）：
+
+@ss-interaction[(apply + (list 1 4 7 10))]
+
+因此，即使使用 @secref["exercise 2.20"] 这道练习题所提到的带点尾部记法让传入的多个序列能够直接写出而不需要手动包装进一个 @racket[list] 里，我们仍然不能说 @racket[accumulate-n] 就是 @racket[accumulate] 的一种变参版本，至少不能说它相对于 @racket[accumulate] 就像 Scheme 标准中的通用 @racket[map] 相对于书中使用的一元 @racket[map] 那样（见原书 2.2.1 节的脚注）。
+
+@subsection{@racket[variadic-accumulate] ：真正的变参 @racket[accumulate]}
+
+如果可以使用 @racket[apply] ，我们就能定义出真正的变参版本 @racket[accumulate] 了。
+
+@margin-note{Racket 自带的 @hyperlink["https://docs.racket-lang.org/reference/procedures.html#%28def._%28%28lib._racket%2Fprivate%2Fbase..rkt%29._apply%29%29"]{@racket[apply]} 函数做了一些扩展，例如 @racket[(apply + 1 2 (list 3 4))] 和 @racket[(apply + (list 1 2 3 4))] 效果相同。这样一来， @racket[(apply f (append (list a b c) ls))] 就可以简写成 @racket[(apply f a b c ls)] 了。这里的代码没有使用这种简写。}
+
+@ss-interaction[
+(define (variadic-accumulate f init . seqs)
+  (if (null? (car seqs))
+      init
+      (apply f (append (map car seqs)
+                       (list (apply variadic-accumulate
+                                    (append (list f init)
+                                            (map cdr seqs))))))))
+
+(variadic-accumulate
+ (lambda (a b result)
+   (* result (- a b)))
+ 1
+ (list 1 2 3)
+ (list 4 5 6))
+]
+
+事实上，这个 @racket[variadic-accumulate] 的用法，就和 Racket 自带的 @hyperlink["https://docs.racket-lang.org/reference/pairs.html#%28def._%28%28lib._racket%2Fprivate%2Flist..rkt%29._foldr%29%29"]{@racket[foldr]} 一样了。
+
+@subsection{随手写个变参 @racket[map]}
+
+变参 @racket[map] 使用了一个 @racket[map1] ，后者就是书中使用的一元 @racket[map] 。当然，它在变参 @racket[map] 的实现中并不是必要的。
+
+@ss-interaction[
+(define (map1 f ls)
+  (if (null? ls)
+      nil
+      (cons (f (car ls))
+            (map1 f (cdr ls)))))
+(define (map f . seqs)
+  (if (null? (car seqs))
+      nil
+      (cons (apply f (map1 car seqs))
+            (apply map (cons f (map1 cdr seqs))))))
+(map + (list 1 2 3) (list 40 50 60) (list 700 800 900))
+]
