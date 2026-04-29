@@ -205,7 +205,11 @@
 
 用 @racket[map] 把过程应用于所有项，然后把整个结果表丢弃掉。
 
-但我们还是自己写一个使用（尾）递归的版本吧：
+但注意：根据 IEEE Scheme 标准， @bold{内置的 @racket[map] 过程对表中各项应用 @racket[proc] 时，顺序是未指定的} ，而 @racket[for-each] 则一定是先对首项应用 @racket[proc] ，再对第二项应用 @racket[proc] ，以此类推。标准里甚至特意强调了它们在这方面的不同。
+
+不过刚才的 @racket[for-each] 还是不会出什么问题，因为 @hyperlink["https://docs.racket-lang.org/reference/pairs.html#%28def._%28%28lib._racket%2Fprivate%2Fmap..rkt%29._map%29%29"]{Racket 内置的 @racket[map]} 还是保证了会顺序应用 @racket[proc] 。此外，书中自己就用递归造了一个一元 @racket[map] 出来，那样一个 @racket[map] 实现也能够保证顺序应用，所以上方的写法仍然可以接受。
+
+不过，我们还是自己写一个使用（尾）递归的版本吧：
 
 @ss-interaction[
 (define (for-each proc ls)
