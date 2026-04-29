@@ -21,7 +21,13 @@
 
 @section{说明}
 
-SICP 书中刻意避开了一些在实际使用 Lisp 时需要了解的知识。此外，本项目使用的 Racket 编程语言和 Scheme 有一些差异。这里进行补充。
+SICP 原书刻意避开了一些在实际使用 Lisp 时需要了解的知识。
+
+此外，经过了几十年，人们使用 Lisp 时的习惯也在演化。
+
+同时，本项目使用的 Racket 编程语言和 Scheme 有一些差异。
+
+本页面会补充这些知识。
 
 @; ----------------------------------------------------------------------
 
@@ -41,7 +47,9 @@ Racket 和 Chez Scheme 都支持大整数类型，所以不必担心整数溢出
 
 @section{方括号}
 
-SICP 全书都使用圆括号写代码，但实际 Lisp 编程中人们有时会使用方括号，例如：
+IEEE Scheme 标准是比较早的文献，没有规定方括号和花括号的用途，只说了将它们“保留，用于未来可能的语言扩展”（reserved for possible future extensions to the language），标准全文都只用圆括号写代码。同时代的 SICP，也是全书都使用圆括号写代码。
+
+但现在在 Scheme 和 Racket 编程中，人们有时会使用方括号，例如：
 
 @ss-interaction[
 (define (fib n)
@@ -52,13 +60,60 @@ SICP 全书都使用圆括号写代码，但实际 Lisp 编程中人们有时会
 (map fib '(0 1 2 3 4 5 6))
 ]
 
-事实上，方括号和圆括号是等价的，可以随意互换。（但至于 @tt{([)]} 这种诡异的结构还是算了吧。）
+事实上，在 Scheme 和 Racket 中，现在一般都将方括号和圆括号视为等价物，可以随意互换。（但至于 @tt{([)]} 这种诡异的结构还是算了吧。）这在其他 Lisp 方言中不一定成立，例如 Clojure 用方括号表示向量。
 
-方括号标记着 @tt{cond} 和 @tt{let} 中，根据语法规定必须成对出现的东西。例如， @tt{cond} 中的每一个子句（条件-结果），或者 @tt{let} 中的每一对绑定（名字-值），就用方括号来标记：形如 @tt{(a b)} 的代码将会写成 @tt{[a b]} 。
+所以方括号一般要在什么地方用呢？
 
-除此之外，方括号在其他一些地方也会用到，例如 @hyperlink["https://docs.racket-lang.org/guide/pattern-macros.html"]{基于模式匹配的宏} 中的每一个子句（模式-模板）。在这里，方括号仍然是用于标记成对出现的东西。
+方括号一般在一些特殊形式里，标记会在一个表内多次出现的、本身长度固定的列表，它们一般都是子句。
+
+也就是说，如果我们写代码时，一些代码因为语法规定会长成这样：
+
+@verbatim{
+((a-1 b-1)
+ (a-2 b-2)
+ ...
+ (a-n b-n))
+}
+
+其中所有的 @tt{a-i} 都有着类似的功能，所有的 @tt{b-i} 都有着类似的功能，那么这时候用方括号就很合适了：
+
+@verbatim{
+([a-1 b-1]
+ [a-2 b-2]
+ ...
+ [a-n b-n])
+}
+
+除了刚才的 @tt{cond} 之外，再举一个 @tt{let} 的例子：
+
+@ss-interaction[
+(let ([a 1]
+      [b 2]
+      [c 3])
+  (+ a b c))
+]
+
+刚才的例子都是表长固定为 2 的情况。也有表长为 3 的情况，例如 @tt{do} 中描述各个变量更新的代码（下面这段示例代码来自 IEEE Scheme 标准，做了修改）：
+
+@ss-interaction[
+(define x '(1 3 5 7 9))
+(do ([x x (cdr x)]
+     [sum 0 (+ sum (car x))])
+  ((null? x) sum))
+]
 
 @hyperlink["https://docs.racket-lang.org/guide/syntax-overview.html#(part._.Conditionals_with_if__and__or__and_cond)"]{Racket 官方文档对 @tt{cond} 的讲解} 中提到，这是一种惯例写法，这样做有助于提高可读性。
+
+在 Racket 中，方括号还是比较常见的，会出现在包括但不限于：
+
+@itemlist[@item{@hyperlink["https://docs.racket-lang.org/reference/if.html#(part._if)"]{条件} ： @tt{cond}}
+          @item{@hyperlink["https://docs.racket-lang.org/reference/let.html#(part._let)"]{绑定} ： @tt{let} 及其变体}
+          @item{@hyperlink["https://docs.racket-lang.org/reference/for.html#(part._.Do_.Loops)"]{循环} ： @tt{for} 和 @tt{do} 及它们的变体}
+          @item{@hyperlink["https://docs.racket-lang.org/reference/case.html#(part._case)"]{分派} ： @tt{case} 及其变体}
+          @item{@hyperlink["https://docs.racket-lang.org/reference/match.html#(part._match)"]{模式匹配} ： @tt{match} 及其变体}
+          @item{@hyperlink["https://docs.racket-lang.org/guide/pattern-macros.html#(part._pattern-macros)"]{宏定义} ： @tt{define-syntax} 及其变体}]
+
+这些特殊形式里。
 
 @; ----------------------------------------------------------------------
 
