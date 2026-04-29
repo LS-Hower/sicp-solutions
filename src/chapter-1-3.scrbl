@@ -160,18 +160,18 @@
 
 @section{练习 1.33 | @racket[filtered-accumulate] ：带过滤的累积}
 
-多加一个 @tt{if} 判断：如果 @racket[(term i)] 满足 @racket[take?] 谓词，则进行 @racket[combiner] 运算算出新的 @racket[result] 并在下一次调用 @racket[iter] 时将原本的 @racket[result] 替换掉，否则不替换。
+多加一个 @tt{if} 判断：如果 @racket[(term i)] 满足 @racket[take] 谓词，则进行 @racket[combiner] 运算算出新的 @racket[result] 并在下一次调用 @racket[iter] 时将原本的 @racket[result] 替换掉，否则不替换。
 
 注意：书中说的是“只组合起由给定范围所得到的项里的那些满足特定条件的项”，而不是“只组合起由给定范围里的那些满足特定条件的部分所得到的项”。说白了，就是谓词要取的参数是 @racket[(term i)] ，而不是 @racket[i] 。
 
 @ss-interaction[
-(define (filtered-accumulate take? combiner null-value term a next b)
+(define (filtered-accumulate take combiner null-value term a next b)
   (define (iter i result)
     (define (handle term-of-i)
       (if (> i b)
           result
           (iter (next i)
-                (if (take? term-of-i)
+                (if (take term-of-i)
                     (combiner result term-of-i)
                     result))))
     (handle (term i)))
@@ -819,9 +819,9 @@ r
 @racket[iterativa-improve] 过程本身实现起来倒是没什么难度。这里不直接写一个 @tt{lambda} 表达式来作为返回值而是使用了内部定义，是因为它需要递归。（不过，练习 4.21 中还真就讲解了如何只用 @tt{lambda} 实现递归，不过这里就先不搞了。）
 
 @ss-interaction[
-(define (iterative-improve good-enough? improve)
+(define (iterative-improve good-enough improve)
   (define (iter guess)
-    (if (good-enough? guess)
+    (if (good-enough guess)
         guess
         (iter (improve guess))))
   iter)

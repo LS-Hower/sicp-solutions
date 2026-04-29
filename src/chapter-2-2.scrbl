@@ -121,10 +121,10 @@
   (or (and a b)
       (and (not a) (not b))))
 
-(define (filter take? ls)
+(define (filter take ls)
   (define (filtered sublist)
     (cond [(null? sublist) nil]
-          [(take? (car sublist))
+          [(take (car sublist))
            (cons (car sublist) (filtered (cdr sublist)))]
           [else (filtered (cdr sublist))]))
   (filtered ls))
@@ -141,7 +141,7 @@
 
 这里定义了 @racket[boolean-equal?] 过程判断两个布尔值是否相等，它利用了如下事实：两个布尔值相等，当且仅当两者都是真或者两者都是假。原书后面的章节会介绍足够通用的 @racket[equal?] 过程，它对于布尔值也能正确工作。Racket 还自带 @racket[boolean=?] 谓词，专门用于布尔值。
 
-这里还定义了 @racket[filter] 过程，它取一个谓词 @racket[take?] 和一个表 @racket[ls] ，返回一个表，包含的是 @racket[ls] 中所有满足谓词 @racket[take?] 的项。不难感觉到，这个过程比较通用。它在原书正文中的稍后章节就会遇到，之后还会多次用到。
+这里还定义了 @racket[filter] 过程，它取一个谓词 @racket[take] 和一个表 @racket[ls] ，返回一个表，包含的是 @racket[ls] 中所有满足谓词 @racket[take] 的项。不难感觉到，这个过程比较通用。它在原书正文中的稍后章节就会遇到，之后还会多次用到。
 
 @; ----------------------------------------------------------------------
 
