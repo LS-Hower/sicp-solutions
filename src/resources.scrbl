@@ -10,6 +10,18 @@
 
 @; ----------------------------------------------------------------------
 
+@section[#:tag "scheme.org official"]{Scheme 资料汇集：Scheme 官方网站}
+
+@hyperlink["https://www.scheme.org/"]{Scheme 官方网站} 提供了大量有关 Scheme 编程语言的资料和链接，例如：
+
+@itemlist[@item{@hyperlink["https://docs.scheme.org/sicp/"]{SICP HTML 版电子书} ；}
+          @item{@hyperlink["https://standards.scheme.org/"]{Scheme RnRS 标准各版本 PDF 文档与简单介绍} ；}
+          @item{@hyperlink["https://get.scheme.org/"]{一些 Scheme 实现的列表} 。}]
+
+从官网出发可以找到许多资料。例如，从首页可以进入 @hyperlink["https://conservatory.scheme.org/"]{Scheme Conservatory} 子域名站，它包含许多较早的网站和软件，都是历史资料。例如，它存档了 @hyperlink["https://conservatory.scheme.org/schemers/"]{@tt{Schemers.org}} 的资源，后者又有着不少资料。
+
+@; ----------------------------------------------------------------------
+
 @section{哪里可以读 SICP：一些电子书资源}
 
 麻省理工学院官网提供了 SICP 电子版资源：
@@ -17,6 +29,8 @@
 @itemlist[@item{@hyperlink["https://web.mit.edu/6.001/6.037/sicp.pdf"]{SICP PDF 电子版}}
           @item{@hyperlink["https://mitp-content-server.mit.edu/books/content/sectbyfn/books_pres_0/6515/sicp.zip/index.html"]{SICP HTML 电子版}}
           @item{@hyperlink["https://mitp-content-server.mit.edu/books/content/sectbyfn/books_pres_0/6515/sicp.zip"]{SICP HTML 电子版 压缩包}}]
+
+@secref["scheme.org official"] 一节中也提到，Scheme 官网上也有 SICP HTML 电子书。
 
 @; ----------------------------------------------------------------------
 
@@ -31,6 +45,8 @@
 ]
 
 @; @url["https://try.scheme.org/"] 有点难看了，而且 @url["try.scheme.org"] 行为也不正确。
+
+@secref["scheme.org official"] 一节中也提到，Scheme 官网上有 Scheme 实现列表。
 
 各种 Scheme 实现都基本遵循（至少一些版本的）Scheme 标准，所以都能运行书中绝大多数代码。虽然偶尔会有不同行为，但这类问题一般都不难解决。
 
