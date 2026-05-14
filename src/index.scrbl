@@ -47,4 +47,5 @@ Racket 基本可以当成 Scheme 的超集，书中的许多代码无需修改�
   @item{（其余部分正在编写中）}
   @item{@hyperlink["https://github.com/LS-Hower/sicp-solutions"]{（外部）本项目 GitHub 仓库}}
   @item{@hyperlink["https://ls-hower.github.io/index.html"]{（外部）LS_Hower 的个人主页（本页面的父页面）}}
+  @item{@hyperlink["https://ls-hower.github.io/scheme-tutorial/"]{（外部）一个“数据导向的 Scheme 教程”（本页面的兄弟页面）}}
 ]
