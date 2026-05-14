@@ -236,3 +236,25 @@ Reddit 上有一个帖子：“@hyperlink["https://www.reddit.com/r/lisp/comment
 @subsection[#:tag "mutability of pair"]{序对的可变性}
 
 TODO：循环表，以及不同实现的解释器如何打印它们；Racket 序对的不可变性以及 @racket[list?] 结果被缓存
+
+@; ----------------------------------------------------------------------
+
+@section{关于 Scheme 语言标准}
+
+IEEE 制定过 Scheme 语言标准 @hyperlink["https://standards.ieee.org/ieee/1178/1787/"]{IEEE 1178-1990} ，ISO 也制定过和 Scheme 有关的标准 @hyperlink["https://www.iso.org/standard/18196.html"]{ISO/IEC 10179:1996} （DSSSL）。但据 @hyperlink["https://standards.scheme.org/"]{Scheme 官方网站对这些正式标准的介绍} 所说，它们都基本只剩历史意义了。
+
+@subsection{RnRS 系列标准}
+
+Scheme 实现一般都倾向于参考 @hyperlink["http://www.scheme-reports.org/"]{RnRS 系列标准} 。这一系列标准还会与时俱进：目前（2026 年 5 月 14 日），最新版本是 @hyperlink["https://r7rs.org/"]{R7RS} ，并且分化成了 small 和 large 两个分支，后者仍在制定中。
+
+1998 年的 R5RS 可以说是最广泛接受的标准。
+
+王永刚对 R5RS 标准做了一个非官方的中文翻译（ @hyperlink["https://math.pku.edu.cn/teachers/qiuzy/progtech/scheme/r5rscn.pdf"]{算法语言 Scheme 修订⁵报告} ），得到了 SICP 译者裘宗燕的支持。
+
+Scheme 官网上有 RnRS 标准各版本 PDF 文档与简单介绍，见本项目的 @hyperlink["./resources.html"]{学习资源} 页面。
+
+@subsection{SRFI 扩展}
+
+语言标准都很小（除了 R7RS 的 large 分支，可能还有 R6RS），所以只用标准 Scheme 编程解决实际问题其实不太方便，这是没法否认的。因此人们提出 @hyperlink["“https://srfi.schemers.org/"]{SRFI 项目} （全称 Scheme Requests for Implementation），以模块化的方式为 Scheme 添加实用扩展功能。
+
+不同的 Scheme 实现对 SRFI 的支持程度也不同，支持较好的有 GNU Guile 和 Racket（其实后者的内置库往往比 SRFI 还强大）。
