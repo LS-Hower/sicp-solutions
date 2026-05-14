@@ -237,6 +237,8 @@ Reddit 上有一个帖子：“@hyperlink["https://www.reddit.com/r/lisp/comment
 
 TODO：循环表，以及不同实现的解释器如何打印它们；Racket 序对的不可变性以及 @racket[list?] 结果被缓存
 
+TODO：把自己 Scheme 教程中的结论搬过来，重构
+
 @; ----------------------------------------------------------------------
 
 @section{关于 Scheme 语言标准}
