@@ -25,7 +25,7 @@
 @itemlist[
   @item{@hyperlink["https://download.racket-lang.org/"]{Racket} ：工具链成熟，其中就包含集成开发环境 DrRacket。本项目也使用了 Racket 工具链和语言。}
   @item{@hyperlink["https://www.gnu.org/software/mit-scheme/"]{MIT/GNU Scheme} ：最为正统，是书中所使用的 Scheme 实现。（安装难度稍大。）}
-  @item{@hyperlink["https://github.com/cisco/ChezScheme/releases"]{Chez Scheme} ：一般认为是最快、最稳定的 Scheme 实现之一。}
+  @item{@hyperlink["https://www.scheme.com/"]{Chez Scheme} ：一般认为是最快、最稳定的 Scheme 实现之一。}
   @item{@hyperlink["https://www.gnu.org/software/guile/"]{GNU Guile} ：便于嵌入其他程序作为扩展，是 GNU 各种软件项目的首选。}
   @item{@hyperlink["https://try.scheme.org/"]{@tt{try.scheme.org}} ：Scheme 官网的在线交互式解释器，可以快速地测试少量代码片段。}
 ]
